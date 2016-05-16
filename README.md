@@ -50,7 +50,7 @@ has been copied into your blocks folder, login to Moodle as admin and it should
 detect the new block and install it.
 
 Note that if you download the ZIP from Github the homework folder is called
-'moodle-homework' and needs to be renamed after extraction to 'homework'.
+'moodle-block_homework' and needs to be renamed after extraction to 'homework'.
 
 Once installed you can add the block to your front page in the usual manner,
 and we recommend you set it to appear on all pages.
