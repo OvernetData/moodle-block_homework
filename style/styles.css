@@ -1,0 +1,639 @@
+.block_homework,
+.page_edulink_homework #page-content {
+    font-family: Lato, sans-serif;
+}
+
+.ond_centered {
+    margin: auto;
+    text-align: center;
+}
+
+.ond_material_button_holder {
+    margin: 10px;
+    text-align: right;
+}
+
+.ond_material_button {
+    text-align: right;
+    margin-right: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    text-transform: uppercase;
+    font-family: Arial,Helvetica,sans-serif;
+    font-weight: 700;
+    font-size: 12pt;
+    color: #08E;
+}
+
+.ond_material_button:hover {
+    color: #000;
+    text-decoration: none;
+}
+
+.ond_material_button_disabled,.ond_material_button_disabled:hover {
+    color: #eaeaea;
+    cursor: not-allowed;
+}
+
+.ond_material_button_flat {
+    position: relative;
+    display: inline;
+    margin: 1em;
+    padding: .3em 1em;
+    line-height: 2em;
+    overflow: hidden;
+    border-width: 0;
+    outline: none;
+    border: none !important;
+    border-radius: 0 !important;
+    webkit-border-radius: 0 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    color: #08E !important;
+    background-image: none !important;
+    text-transform: uppercase !important;
+    text-decoration: none !important;
+    font-weight: 700 !important;
+    font-family: Arial,Helvetica,sans-serif !important;
+    font-size: 12pt !important;
+    white-space: nowrap !important;
+}
+
+.ond_material_button_flat:hover {
+    text-decoration: none !important;
+    color: #06A !important;
+    cursor: pointer;
+}
+
+.ond_material_button_raised,
+.ond_material_button_raised_small {
+    position: relative;
+    display: inline;
+    margin: 1em;
+    padding: .3em 1em;
+    line-height: 2em;
+    overflow: hidden;
+    border-width: 0;
+    outline: none;
+    border: none !important;
+    border-radius: 1px !important;
+    webkit-border-radius: 1px !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    text-shadow: none !important;
+    background-color: #08E !important;
+    background-image: none !important;
+    color: #fff !important;
+    text-transform: uppercase !important;
+    text-decoration: none !important;
+    font-weight: 700 !important;
+    font-family: Arial,Helvetica,sans-serif !important;
+    font-size: 11pt !important;
+    white-space: nowrap !important;
+}
+
+.ond_material_button_raised_small {
+    font-size: 9pt !important;
+}
+
+.ond_material_button_raised:hover {
+    color: #fff !important;
+    text-decoration: none !important;
+    background-color: #06A !important;
+}
+
+.ond_ajax_loading {
+    background-color: #5862A1;
+}
+
+.ond_ajax_loading:before {
+    content: url(../pix/spinning_circle.gif);
+    padding-right: 1em;
+}
+
+.ond_show:before {
+    content: "Show ";
+}
+
+.ond_hide:before {
+    content: "Hide ";
+}
+
+.ond_up:before {
+    background: url(../pix/ond_up.png) center center no-repeat;
+    content: url(../pix/ond_blank.png);
+    width: 14px;
+    height: 14px;
+    padding-right: .5em;
+}
+
+.ond_down:before {
+    background: url(../pix/ond_down.png) center center no-repeat;
+    content: url(../pix/ond_blank.png);
+    width: 14px;
+    height: 14px;
+    padding-right: .5em;
+}
+
+.ond_delete:before {
+    background: url(../pix/ond_delete.png) center center no-repeat;
+    content: url(../pix/ond_blank.png);
+    width: 14px;
+    height: 14px;
+    padding-right: .5em;
+}
+
+.ond_addcolumn:before {
+    background: url(../pix/ond_addcolumn.png) center center no-repeat;
+    content: url(../pix/ond_blank.png);
+    width: 14px;
+    height: 14px;
+    padding-right: .5em;
+}
+
+.ond_addrow:before {
+    background: url(../pix/ond_addrow.png) center center no-repeat;
+    content: url(../pix/ond_blank.png);
+    width: 14px;
+    height: 14px;
+    padding-right: .5em;
+}
+
+.ond_debug_collapsible {
+    padding: 1em 1em .5em;
+    margin: 1.5em .5em .5em 0;
+    border: 1px solid gray;
+    background-color: #fddfa4;
+    color: #000;
+    border-radius: 8px;
+    font-size: 11pt;
+    line-height: .9em;
+}
+
+.ond_button_holder_right {
+    float: right;
+}
+
+div.ond_controlgroup {
+    font-size: 12pt;
+    width: 100%;
+    background: #fff;
+    padding-top: 1em;
+}
+
+div.ond_controlsubgroup {
+    background-color: rgba(0,0,0,0.02);
+}
+
+div.ond_controlname {
+    min-width: 25em;
+    font-weight: 700;
+    font-size: 12pt;
+    text-align: right;
+    vertical-align: middle;
+    float: left;
+    padding: 5px 10px;
+}
+
+div.ond_prompted {
+    padding-left: 26.5em;
+}
+
+div.ond_control {
+    width: 100%;
+    padding: 5px 0;
+}
+
+div.ond_control input,select {
+    font-size: 13pt;
+    padding: 2px 3px;
+}
+
+div.ond_clearer {
+    clear: both;
+}
+
+.ond_smallbutton,
+.ond_smallbuttondisabled {
+    box-sizing: border-box;
+    display: inline-block;
+    min-width: 1.5em;
+    min-height: 1em;
+    padding: 0;
+    margin: 5px;
+    text-align: center;
+    text-decoration: none !important;
+    cursor: pointer;
+    color: #333;
+    border: 1px solid #cacaca;
+    background-color: #fff;
+}
+
+.ond_smallbuttondisabled {
+    color: #bbb;
+    cursor: no-drop;
+    border: 1px solid #dedede;
+}
+
+.ond_green {
+    color: green;
+}
+
+.ond_red {
+    color: red;
+}
+
+.page_edulink_homework .form-control {
+    max-width: 100%;
+    width: auto;
+    font-size: 13pt !important;
+    margin-top: 0 !important;
+}
+
+.page_edulink_homework .form-control[type='date'] {
+    width: 8.5em;
+}
+
+.block_homework ul.unlist { padding-top: 5px; }
+
+.page_edulink_homework .label,
+.block_homework .label {
+    font-size: 110% !important;
+    padding: 4px;
+    margin: 0;
+    white-space: normal;
+    line-height: 1.3em;
+}
+
+.ond_control input {
+    height: 25px !important;
+}
+
+.ond_control input[type=color] {
+    width: 10em !important;
+}
+
+.ond_required_invalid {
+    background: #faa !important;
+}
+
+.page_edulink_homework div.tab-content {
+    overflow: visible !important;
+}
+
+#ond_validationfailed {
+    display: none;
+}
+
+.page_edulink_homework ul.multiselect-container input[type=checkbox] {
+    margin-left: -25px;
+    margin-top: -4px;
+    width: 1em;
+}
+
+.page_edulink_homework ul.multiselect-container li {
+    background: #fff;
+}
+
+.ond_table {
+    width: 100%;
+    margin: auto;
+    border-top: 1px solid black;
+}
+
+.ond_table th {
+    background: #E7E1FF;
+    padding: 6px;
+    font-weight: 700;
+    font-size: 120%;
+    text-align: left;
+}
+
+.ond_table td {
+    background: #fafafa;
+    padding: 6px;
+    border-bottom: 1px dashed #eaeaea;
+}
+
+.ond_cell_date {
+    text-align: right;
+    width: 7em;
+}
+
+.ond_cell_number {
+    text-align: center;
+    width: 7em;
+}
+
+.ond_ajax_loading_big {
+    margin: 0 auto;
+    background-image: url(../pix/cogs.svg);
+    background-repeat: no-repeat;
+    min-width: 100px;
+    min-height: 32px;
+    padding-top: 7px;
+    padding-left: 50px;
+    width: 10em;
+    text-align: left;
+    font-size: 26px;
+}
+
+.ond_overdue {
+    font-weight: 700;
+    color: red;
+}
+
+.ond_due {
+    font-weight: 700;
+    color: green;
+}
+
+.ond_student_lookup {
+    padding-top: 4px;
+    padding-bottom: 3px;
+}
+
+.ond_student_lookup_avatar {
+    float: left;
+    width: 32px;
+    margin-right: 10px;
+}
+
+.ond_student_lookup_avatar img {
+    width: 100%;
+    height: auto;
+    border-radius: 32px;
+}
+
+.ond_student_lookup_meta {
+    margin-left: 42px;
+}
+
+.ond_student_lookup_name {
+    color: #000;
+    font-weight: 700;
+    word-wrap: break-word;
+    line-height: 1.1;
+    margin-bottom: 4px;
+}
+
+.ond_student_lookup_year,
+.ond_student_lookup_form {
+    margin-right: 1em;
+}
+
+.ond_student_lookup_year,
+.ond_student_lookup_form,
+.ond_student_lookup_community {
+    display: inline-block;
+    color: #aaa;
+    font-size: 11px;
+}
+
+.select2-results__option--highlighted .ond_student_lookup_name,
+.select2-results__option--highlighted .ond_student_lookup_year,
+.select2-results__option--highlighted .ond_student_lookup_form,
+.select2-results__option--highlighted .ond_student_lookup_community {
+    color: #fff;
+}
+
+.ond_row {
+    clear: both;
+    text-align: center;
+    margin: auto;
+}
+
+.ond_col {
+    width: 550px;
+    float: left;
+}
+
+.page_edulink_homework .label a,
+.block_homework .label a {
+    color: #fff;
+}
+
+td.ond_homework_timetable_cell {
+    margin: 8px;
+    border: 5px solid #fff;
+    border-radius: 16px;
+}
+
+td.ond_homework_timetable_cell img {
+    padding: 5px;
+}
+
+div.ond_homework_timetable {
+    float: left;
+}
+
+div.ond_homework_timetable_indicators {
+    float: right;
+}
+
+div.ond_homework_timetable_indicators span {
+    padding: 8px;
+    border-radius: 16px;
+    font-size: 130%;
+    font-weight: 700;
+}
+
+div.ond_homework_timetable_actions {
+    visibility: hidden;
+    float: right;
+}
+
+span.ond_homework_timetable_set:before {
+    padding-right: 4px;
+    position: relative;
+    top: 9px;
+    content: url('../pix/homework-set-large.png');
+}
+
+span.ond_homework_timetable_set {
+    background: #DFD;
+}
+
+span.ond_homework_timetable_due:before {
+    padding-right: 4px;
+    position: relative;
+    top: 9px;
+    content: url('../pix/homework-due-large.png');
+}
+
+span.ond_homework_timetable_due {
+    background: #FEE;
+}
+
+.ond_disabled {
+    color: #ddd;
+    cursor: not-allowed;
+    opacity: .2;
+}
+
+.block_homework img {
+    padding: 3px;
+}
+
+.block_homework .column {
+    width: 100%;
+    text-align: center;
+}
+
+.block_homework .column .label {
+    margin-bottom: 5px;
+}
+
+.block_homework .badge {
+    background-color: white;
+    color: #339933;
+    padding: 5px 4px 3px 4px;
+    margin-left: 5px;
+}
+
+.ond_homework_block_link {
+    font-size: 110%;
+    margin: 3px auto;
+    max-width: 16em;
+    text-align: center;
+    text-transform: uppercase;
+    color: white;
+    padding: 5px 3px 2px 3px;
+    font-weight: bold;
+}
+
+.ond_homework_block_link a {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+}
+
+.ond_homework_block_link a:visited,
+.ond_homework_block_link a:active,
+.ond_homework_block_link a:link {
+    color: white;
+}
+
+.ond_homework_block_link a:hover {
+    text-decoration: none;
+}
+
+.ond_sethomework {
+    background: #ff6666;
+}
+.ond_viewhomework {
+    background: #ff9966;
+}
+.ond_markhomework {
+    background: #339933;
+}
+.ond_viewreports {
+    background: #cc33ff;
+}
+
+.ond_mark_button:before {
+    padding-right: 4px;
+    position: relative;
+    top: 9px;
+    content: url('../pix/homework-mark-small.png');
+}
+
+#ond_form_progress {
+    width: 100%;
+    height: 30px;
+    border: 1px solid #09f;
+    background-color: #292929;
+    display: none;
+    overflow: hidden;
+}
+
+#ond_form_progress_bar_number {
+    width: 100px;
+    height: 30px;
+    line-height: 30px;
+    float: right;
+    text-align: right;
+    padding-right: 2em;
+    color: #fff;
+}
+
+#ond_form_progress_bar {
+    width: 1px;
+    height: 30px;
+    line-height: 30px;
+    overflow: hidden;
+    color: #fff;
+    background-color: #09f;
+    padding-left: 1em;
+}
+
+table.ond_homework_item {
+    width: 100%;
+}
+
+td.ond_homework_item_status {
+    width: 5%;
+    text-align: left;
+    vertical-align: middle;
+}
+
+td.ond_homework_item_name {
+    width: 70%;
+    text-align: left;
+    vertical-align: middle;
+}
+
+td.ond_homework_item_duedate {
+    width: 25%;
+    text-align: right;
+    vertical-align: middle;
+}
+
+.ond_homework_item_duedate .badge {
+    background: orange;
+    color: white;
+    padding-bottom: 5px;
+}
+
+.ond_homework_item_duedate .ond_duetoday {
+    background: red;
+}
+
+.ond_homework_item_duedate .ond_completed {
+    background: green;
+}
+
+.ond_homework_item_completed {
+    font-weight: 700;
+    color: #449d44;
+}
+
+.page_edulink_homework th,
+.page_edulink_homework td {
+    box-sizing: content-box;
+}
+
+@media only screen and (max-device-width: 800px) {
+    div.ond_controlname {
+        min-width: 1em;
+    }
+
+    div.ond_prompted {
+        padding-left: 0;
+    }
+}
+
+.ond_failure {
+    margin: 0 auto;
+    background-image: url(../pix/failure.svg);
+    background-repeat: no-repeat;
+    min-width: 100px;
+    min-height: 32px;
+    padding-top: 7px;
+    padding-left: 30px;
+    width: 10em;
+    text-align: center;
+    font-size: 26px;
+    font-weight: normal;
+    color: #444444;
+}

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="blocks/homework/db" VERSION="20160127" COMMENT="XMLDB file for Moodle blocks/homework"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="edulink_homework" COMMENT="Table recording which Moodle course activity assignments were set by EduLink Homework block">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="coursemoduleid"/>
+        <FIELD NAME="coursemoduleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="coursemoduleid" NEXT="subject"/>
+        <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="userid" NEXT="groupids"/>
+        <FIELD NAME="duration" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="coursemoduleid" NEXT="notifyparents"/>
+        <FIELD NAME="notifyparents" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="duration" NEXT="notesforparentssubject"/>
+        <FIELD NAME="notesforparentssubject" TYPE="char" LENGTH="255" NOTNULL="false" PREVIOUS="notifyparents" NEXT="notesforparents"/>
+        <FIELD NAME="notesforparents" TYPE="text" NOTNULL="false" PREVIOUS="notesforparentssubject"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="ix_coursemoduleid" UNIQUE="true" FIELDS="coursemoduleid"/>
+        <INDEX NAME="ix_userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="edulink_homework_items" COMMENT="Table recording which SIMS achievement/behaviour items were logged against activity assignments set by EduLink Homework block">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="coursemoduleid"/>
+        <FIELD NAME="coursemoduleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="coursemoduleid" NEXT="completed"/>
+        <FIELD NAME="completed" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="userid" NEXT="achievementid"/>
+        <FIELD NAME="achievementid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="userid" NEXT="achievementcomments"/>
+        <FIELD NAME="achievementcomments" TYPE="text" NOTNULL="false" PREVIOUS="achievementid" NEXT="behaviourid"/>
+        <FIELD NAME="behaviourid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="achievementcomments" NEXT="behaviourcomments"/>
+        <FIELD NAME="behaviourcomments" TYPE="text" NOTNULL="false" PREVIOUS="behaviourid"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="ix_i_coursemoduleid" UNIQUE="false" FIELDS="coursemoduleid"/>
+        <INDEX NAME="ix_i_userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
