@@ -881,9 +881,9 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
     }
 
     public static function is_edulink_present() {
-        global $CFG;
+        global $CFG, $DB;
         $homeworkaccessfile = $CFG->dirroot . '/blocks/mis_integrator/classes/edulink/homework_api.php';
-        if (file_exists($homeworkaccessfile)) {
+        if ((file_exists($homeworkaccessfile)) && ($DB->get_manager()->table_exists('mis_tr_msheet_entry'))) {
             return $homeworkaccessfile;
         }
         return false;
