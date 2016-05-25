@@ -536,7 +536,6 @@ class moodle_utils {
     }
 
     /**
-    }
      * Returns assignment name (formatted as a link with icon), optionally uses status info to set icon appropriately
      * @global object $CFG
      * @param int $coursemoduleid
