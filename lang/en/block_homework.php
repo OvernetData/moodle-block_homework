@@ -24,6 +24,7 @@
 // Admin.
 $string['homework:addinstance'] = 'Add a Homework block';
 $string['homework:myaddinstance'] = 'Add a Homework block to my Moodle';
+$string['homework:viewreports'] = 'View Homework reports';
 
 // Block list.
 $string['pluginname'] = 'Homework';
