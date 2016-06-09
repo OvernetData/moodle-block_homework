@@ -133,7 +133,7 @@ define(['jquery',
                     }
                 }
                 if (bulk_achievement) {
-                    if (data.filter('#unsubmitted_' + learners[i]).val() !== 1) {
+                    if (data.filter('#unsubmitted_' + learners[i]).val() != 1) {
                         var action_a = { 
                             action: "achievement",
                             sesskey: $('#sesskey').val(),
