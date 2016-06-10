@@ -21,10 +21,11 @@
  * @copyright  2016 Overnet Data Ltd. (@link http://www.overnetdata.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+define('AJAX_SCRIPT', true);
 require_once(__DIR__ . "/../classes/edulink/controls.php");
 require_once("ajaxbase.php");
 
-use OvernetData\EduLinkHomework as e;
+use block_homework\edulink as e;
 
 class ajaxgen_view_timetable extends ajaxgen_base {
 
@@ -39,7 +40,7 @@ class ajaxgen_view_timetable extends ajaxgen_base {
         require_login();
         $PAGE->set_context(\context_system::instance());
 
-        $homeworkaccessfile = moodle_utils::is_edulink_present();
+        $homeworkaccessfile = block_homework_moodle_utils::is_edulink_present();
         if ($homeworkaccessfile !== false) {
             $this->edulinkpresent = true;
             require_once($homeworkaccessfile);
@@ -53,7 +54,7 @@ class ajaxgen_view_timetable extends ajaxgen_base {
         $marking = optional_param('marking', 0, PARAM_INT) == 1;
 
         if ($courseid == $siteid) {
-            $courses = moodle_utils::get_users_courses($displayuserid);
+            $courses = block_homework_moodle_utils::get_users_courses($displayuserid);
         } else {
             $courses = array(get_course($courseid));
         }
@@ -94,12 +95,13 @@ class ajaxgen_view_timetable extends ajaxgen_base {
         foreach ($courses as $course) {
             // Get ALL assignment activities on the course regardless of whether the user is a participant or creator.
             // TODO - replace false with !$this->isteacher?
-            $homeworkactivities = homework_utils::get_homework_for_course($course->id, $displayuserid, false, 366);
+            $homeworkactivities = block_homework_utils::get_homework_for_course($course->id, $displayuserid, false, 366);
             foreach ($homeworkactivities as $item) {
                 $context = context_module::instance($item->id);
                 // Skip this one if the user is not an activity creator (teacher) or participant in the specific
                 // assignment (student).
-                if (($usertype != "employee") && (!moodle_utils::user_is_assignment_participant($displayuserid, $item->id))) {
+                if (($usertype != "employee") &&
+                    (!block_homework_moodle_utils::user_is_assignment_participant($displayuserid, $item->id))) {
                     continue;
                 }
                 $table->add_row();
@@ -113,7 +115,7 @@ class ajaxgen_view_timetable extends ajaxgen_base {
                         $markcell = new e\htmlTableCell(null, null, $marklink->get_html());
                         $table->add_cell($markcell);
                     } else {
-                        $datecell = new e\htmlTableCell(null, "ond_cell_date", homework_utils::format_date($item->availabledate));
+                        $datecell = new e\htmlTableCell(null, "ond_cell_date", block_homework_utils::format_date($item->availabledate));
                         $datecell->set_property('data-order', $item->availabledate);
                         $table->add_cell($datecell);
                     }
@@ -127,9 +129,9 @@ class ajaxgen_view_timetable extends ajaxgen_base {
                 // we replace the graphic with a status graphic but only in student view.
                 $status = false;
                 if (($usertype == "learner") || ($usertype == "parent")) {
-                    $status = moodle_utils::get_assignment_status($item->id, $displayuserid);
+                    $status = block_homework_moodle_utils::get_assignment_status($item->id, $displayuserid);
                 }
-                $name = moodle_utils::get_assignment_name($item->id, $status);
+                $name = block_homework_moodle_utils::get_assignment_name($item->id, $status);
                 $assignmentcell = new e\htmlTableCell(null, null, $name);
                 $assignmentcell->set_property("data-for-export", $item->name);
                 $table->add_cell($assignmentcell);
@@ -141,20 +143,20 @@ class ajaxgen_view_timetable extends ajaxgen_base {
                     $table->add_cell(new e\htmlTableCell(null, null, $status->feedback));
                 } else if ($usertype == "employee") {
                     if ($CFG->enableavailability != 0) {
-                        $avail = moodle_utils::get_assignment_availability_text($item->id);
+                        $avail = block_homework_moodle_utils::get_assignment_availability_text($item->id);
                         if (!empty($avail)) {
                             $avail = str_ireplace(array('<div class="availabilityinfo ">', '</div>'), '', $avail);
                         }
                         $table->add_cell(new e\htmlTableCell(null, null, $avail));
                     }
-                    $participants = moodle_utils::get_assignment_participants($item->id);
+                    $participants = block_homework_moodle_utils::get_assignment_participants($item->id);
                     $removethisrow = (count($participants) == 0) && ($marking);
                     $na = $this->get_str('notapplicable');
                     $marked = 0;
                     $unmarked = 0;
                     if (!$item->nosubmissions) {
-                        $marked = moodle_utils::get_assignment_graded_submission_count($item->id);
-                        $unmarked = moodle_utils::get_assignment_ungraded_submission_count($item->id);
+                        $marked = block_homework_moodle_utils::get_assignment_graded_submission_count($item->id);
+                        $unmarked = block_homework_moodle_utils::get_assignment_ungraded_submission_count($item->id);
                     }
                     $submissions = ($marked + $unmarked) . ' / ' . count($participants);
                     if ($item->nosubmissions || ($item->grade == 0)) {
@@ -174,7 +176,7 @@ class ajaxgen_view_timetable extends ajaxgen_base {
                         $dueclass = ' ond_overdue';
                     }
                 }
-                $duedatecell = new e\htmlTableCell(null, "ond_cell_date" . $dueclass, homework_utils::format_date($item->duedate));
+                $duedatecell = new e\htmlTableCell(null, "ond_cell_date" . $dueclass, block_homework_utils::format_date($item->duedate));
                 $duedatecell->set_property('data-order', $item->duedate);
                 $table->add_cell($duedatecell);
 
@@ -243,7 +245,7 @@ class ajaxgen_view_timetable extends ajaxgen_base {
                             $subject = '<a href="' . $CFG->wwwroot . '/course/view.php?id=' . $period->courseid . '">' .
                                     $subject . '</a>';
                             if (!isset($homeworkcache[$period->courseid])) {
-                                $homeworkcache[$period->courseid] = homework_utils::get_homework_for_course($period->courseid,
+                                $homeworkcache[$period->courseid] = block_homework_utils::get_homework_for_course($period->courseid,
                                         $displayuserid, false);
                             }
                             $homework = $homeworkcache[$period->courseid];
@@ -277,9 +279,9 @@ class ajaxgen_view_timetable extends ajaxgen_base {
                                 }
                                 $text .= '<a href="' . $CFG->wwwroot . '/blocks/homework/set.php?course=' .
                                         $period->courseid . '&avail=' . $today . $groupspecifier . '">' .
-                                        homework_utils::get_icon_html('sethomework') . '</a><br />';
+                                        block_homework_utils::get_icon_html('sethomework') . '</a><br />';
                             }
-                            $viewicon = homework_utils::get_icon_html('viewhomework', !($hashomework || $hasduehomework));
+                            $viewicon = block_homework_utils::get_icon_html('viewhomework', !($hashomework || $hasduehomework));
                             if ($hashomework || $hasduehomework) {
                                 $text .= '<a href="' . $CFG->wwwroot . '/blocks/homework/view.php?course=' .
                                         $period->courseid . '">' . $viewicon . '</a><br />';
@@ -287,7 +289,7 @@ class ajaxgen_view_timetable extends ajaxgen_base {
                                 $text .= $viewicon . '<br />';
                             }
                             if ($usertype == "employee") {
-                                $markicon = homework_utils::get_icon_html('markhomework', !$hasduehomework);
+                                $markicon = block_homework_utils::get_icon_html('markhomework', !$hasduehomework);
                                 if ($hasduehomework) {
                                     $text .= '<a href="' . $CFG->wwwroot . '/blocks/homework/view.php?course=' .
                                             $period->courseid . '&mark=1">' . $markicon . '</a>';

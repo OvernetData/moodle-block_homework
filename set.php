@@ -30,9 +30,9 @@ require_once($CFG->dirroot . "/mod/assign/externallib.php");
 require_once($CFG->dirroot . "/lib/modinfolib.php");
 require_once($CFG->dirroot . "/lib/formslib.php");
 
-use OvernetData\EduLinkHomework as e;
+use block_homework\edulink as e;
 
-class file_uploader_form extends moodleform {
+class block_homework_file_uploader_form extends moodleform {
 
     public function definition() {
         $mform = $this->_form;
@@ -42,7 +42,7 @@ class file_uploader_form extends moodleform {
 
 }
 
-class text_editor_form extends moodleform {
+class block_homework_text_editor_form extends moodleform {
 
     public function definition() {
         $mform = $this->_form;
@@ -54,13 +54,13 @@ class text_editor_form extends moodleform {
     }
 }
 
-class set_homework_page extends e\form_page_base {
+class block_homework_set_page extends e\block_homework_form_page_base {
 
     protected $editingcmid;
     protected $assignment = null;
 
     public static function factory() {
-        return new set_homework_page();
+        return new block_homework_set_page();
     }
 
     public function get_title() {
@@ -68,7 +68,7 @@ class set_homework_page extends e\form_page_base {
         if ($this->editingcmid == 0) {
             return $this->get_str('sethomework');
         } else {
-            $this->assignment = moodle_utils::get_assignment($this->editingcmid);
+            $this->assignment = block_homework_moodle_utils::get_assignment($this->editingcmid);
             $this->courseid = $this->assignment->courseid;
             $this->course = get_course($this->courseid);
             $this->onfrontpage = false;
@@ -82,7 +82,7 @@ class set_homework_page extends e\form_page_base {
         $context = context_course::instance($this->courseid);
         if ($this->onfrontpage) {
             $permission = false;
-            $courses = moodle_utils::get_users_courses($USER->id, 'mod/assign:addinstance');
+            $courses = block_homework_moodle_utils::get_users_courses($USER->id, 'mod/assign:addinstance');
             if (empty($courses)) {
                 $label = new e\htmlLabel('label-warning', $this->get_str('nocoursesasteacher'));
                 return $label->get_html();
@@ -126,8 +126,8 @@ class set_homework_page extends e\form_page_base {
             $activity = $values["activity"];
             if (($activity == "0") || (substr($activity, 0, 5) == 'clone')) {
                 // Cloning existing or creating new one from scratch.
-                $act = moodle_utils::add_course_activity("assign",
-                        $values["course"], $values["name"], moodle_utils::rewrite_urls_to_pluginfile(
+                $act = block_homework_moodle_utils::add_course_activity("assign",
+                        $values["course"], $values["name"], block_homework_moodle_utils::rewrite_urls_to_pluginfile(
                         $values["introeditor"]["text"]), $values["submissions"] == 1 ||
                         $values["submissions"] == 3, $values["submissions"] >= 2, $values["gradingscale"],
                         strtotime($values["available"]), strtotime($values["due"]), $values["groups"]);
@@ -135,7 +135,7 @@ class set_homework_page extends e\form_page_base {
                     $subject = isset($values["subject"]) ? $values["subject"] : '';
                     $notetoparentssubject = isset($values["note_to_parents_subject"]) ? $values["note_to_parents_subject"] : '';
                     $notetoparents = isset($values["note_to_parents"]) ? $values["note_to_parents"] : '';
-                    $tracker = homework_utils::add_homework_tracking_record(
+                    $tracker = block_homework_utils::add_homework_tracking_record(
                                     $act["coursemodule"], $USER->id, $subject, $values["duration"], $values["notifyparents"],
                             $notetoparentssubject, $notetoparents);
                     if (($values["notifyparents"] == 1) && ($notetoparents != '')) {
@@ -149,15 +149,15 @@ class set_homework_page extends e\form_page_base {
                 }
             } else {
                 // Editing existing activity.
-                $act = moodle_utils::update_course_activity(substr($activity, 4), // Skip the use. bit at the start.
-                        $values["name"], moodle_utils::rewrite_urls_to_pluginfile($values["introeditor"]["text"]),
+                $act = block_homework_moodle_utils::update_course_activity(substr($activity, 4), // Skip the use. bit at the start.
+                        $values["name"], block_homework_moodle_utils::rewrite_urls_to_pluginfile($values["introeditor"]["text"]),
                         $values["submissions"] == 1 || $values["submissions"] == 3, $values["submissions"] >= 2,
                         $values["gradingscale"], strtotime($values["available"]), strtotime($values["due"]), $values["groups"]);
                 if ($act) {
                     $subject = isset($values["subject"]) ? $values["subject"] : '';
                     $notetoparentssubject = isset($values["note_to_parents_subject"]) ? $values["note_to_parents_subject"] : '';
                     $notetoparents = isset($values["note_to_parents"]) ? $values["note_to_parents"] : '';
-                    $tracker = homework_utils::update_homework_tracking_record(
+                    $tracker = block_homework_utils::update_homework_tracking_record(
                                     $act["coursemodule"], $USER->id, $subject, $values["duration"], $values["notifyparents"],
                             $notetoparentssubject, $notetoparents);
                     if (($values["notifyparents"] == 1) && ($notetoparents != '')) {
@@ -269,7 +269,7 @@ class set_homework_page extends e\form_page_base {
                 'value' => $courselabelhtml));
 
         $activityoptions = array(0 => $this->get_str('createnewassignmentactivity'));
-        $activities = moodle_utils::get_assignments_on_course($this->courseid);
+        $activities = block_homework_moodle_utils::get_assignments_on_course($this->courseid);
         if (!empty($activities)) {
             $cloneactivities = array();
             foreach ($activities as $value => $activity) {
@@ -422,7 +422,7 @@ class set_homework_page extends e\form_page_base {
                     $assparentnotes = $this->get_str('notifyparentsmessage');
                     $assparentnotessubject = $this->get_str('notifyparentsmessagesubject');
                     $sql = 'SELECT id, notesforparents, notesforparentssubject '
-                            . 'FROM {edulink_homework} '
+                            . 'FROM {block_homework_assignment} '
                             . 'WHERE notifyparents = 1 AND userid = ? ORDER BY id DESC LIMIT 1';
                     $row = $DB->get_record_sql($sql, array($USER->id));
                     if ($row) {
@@ -469,7 +469,7 @@ class set_homework_page extends e\form_page_base {
     protected function get_course_options() {
         global $USER;
         $courseoptions = array();
-        $courses = moodle_utils::get_users_courses($USER->id, 'mod/assign:addinstance');
+        $courses = block_homework_moodle_utils::get_users_courses($USER->id, 'mod/assign:addinstance');
         foreach ($courses as $course) {
             $courseoptions[$course->id] = $course->fullname;
         }
@@ -485,7 +485,7 @@ class set_homework_page extends e\form_page_base {
     // Moodle Forms element within our page.
     protected function get_file_uploader($draftitemid, $filemanageroptions) {
         $customdata = array('filemanageropts' => $filemanageroptions);
-        $mform = new file_uploader_form(null, $customdata);
+        $mform = new block_homework_file_uploader_form(null, $customdata);
         $entry = new stdClass();
         $entry->introattachment = $draftitemid;
         $mform->set_data($entry);
@@ -501,7 +501,7 @@ class set_homework_page extends e\form_page_base {
     // Similar to above only for the text editor control.
     protected function get_text_editor($context, $draftitemid, $name, $value) {
         $customdata = array('context' => $context, 'name' => $name);
-        $mform = new text_editor_form(null, $customdata);
+        $mform = new block_homework_text_editor_form(null, $customdata);
         $entry = new stdClass();
         $entry->$name = array('text' => $value, 'itemid' => $draftitemid);
         $mform->set_data($entry);
@@ -520,4 +520,4 @@ class set_homework_page extends e\form_page_base {
 
 }
 
-set_homework_page::factory();
+block_homework_set_page::factory();

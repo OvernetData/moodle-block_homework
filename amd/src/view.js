@@ -71,19 +71,14 @@ define(['jquery',
                     data: params
                     })
                 .done(function(data, textStatus, jqXHR) {
-                    try {
-                        var tableData = JSON.parse(data);
-                    } catch (e) {
-                        tableData = strs.failedtofetchdata;
-                    }
-                    if (typeof(tableData) != 'string') {
-                        $('#ond_homework_list_loaded').html(tableData.htmllist);
+                    if (typeof(data.error) == 'undefined') {
+                        $('#ond_homework_list_loaded').html(data.htmllist);
                         assignments_table_done = false;
                         $('#ond_homework_list_loading').css("display","none");
                         $('#ond_homework_list_loaded').css("display","block");
                         refreshAssignmentsList();
                         
-                        $('#ond_homework_timetable_loaded').html(tableData.htmltimetable);
+                        $('#ond_homework_timetable_loaded').html(data.htmltimetable);
                         $('#ond_homework_timetable_loading').css("display","none");
                         $('#ond_homework_timetable_loaded').css("display","block");
                         $('#ond_homework_timetable td').mouseenter(function(){
@@ -92,18 +87,25 @@ define(['jquery',
                             $(this).children('.ond_homework_timetable_actions').css('visibility','hidden');
                         });
                     } else {
-                        $('#ond_homework_list_loading').css("display","none");
-                        $('#ond_homework_list_loaded').html('<h4 class="ond_failure">' + tableData + '<h4>');
-                        $('#ond_homework_list_loaded').css("display","block");
-                        if ($('#ond_homework_timetable_loaded')) {
-                            $('#ond_homework_timetable_loaded').html('<h4 class="ond_failure">' + tableData + '<h4>');
-                            $('#ond_homework_timetable_loading').css("display","none");
-                            $('#ond_homework_timetable_loaded').css("display","block");
-                        }
-                        console.log(data);
+                        displayError(data.error);
                     }
                     $('#date').prop('disabled',false);
+            })
+            .error(function(jqXHR, textStatus, errorThrown){
+                displayError(errorThrown);
             });
+        };
+        
+        var displayError = function (error) {
+            error = strs.failedtofetchdata + ':<br>' + error;
+            $('#ond_homework_list_loading').css("display","none");
+            $('#ond_homework_list_loaded').html('<h4 class="ond_failure">' + error + '<h4>');
+            $('#ond_homework_list_loaded').css("display","block");
+            if ($('#ond_homework_timetable_loaded')) {
+                $('#ond_homework_timetable_loaded').html('<h4 class="ond_failure">' + error + '<h4>');
+                $('#ond_homework_timetable_loading').css("display","none");
+                $('#ond_homework_timetable_loaded').css("display","block");
+            }
         };
         
         // Only update the datatable when visible or it messes up the column headers.

@@ -21,9 +21,10 @@
  * @copyright  2016 Overnet Data Ltd. (@link http://www.overnetdata.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+define('AJAX_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
 require_once(__DIR__ . '/../classes/edulink/moodle.php');
-require_once(moodle_utils::is_edulink_present());
+require_once(block_homework_moodle_utils::is_edulink_present());
 
 global $DB, $PAGE, $OUTPUT;
 
@@ -54,7 +55,10 @@ if ((($action != "achievement") && ($action != "behaviour")) || ($cmid == 0) || 
         $result = null;
         $checkexisting = array('coursemoduleid' => $cmid,
             'userid' => $learnerid);
-        $existing = $DB->get_records('edulink_homework_items', $checkexisting);
+        $existing = $DB->get_records('block_homework_item', $checkexisting);
+        if ($existing) {
+            $existing = reset($existing);
+        }
         if ($action == "achievement") {
             if (($existing) && ($existing->achievementcomments != '')) {
                 $result = array('success' => false, 'error' => 'Achievement record already created for this assignment',
@@ -81,11 +85,11 @@ if ((($action != "achievement") && ($action != "behaviour")) || ($cmid == 0) || 
             }
             if ($existing) {
                 $record["id"] = $existing->id;
-                $DB->update_record('edulink_homework_items', (object) $record);
+                $DB->update_record('block_homework_item', (object) $record);
             } else {
                 $record["coursemoduleid"] = $cmid;
                 $record["userid"] = $learnerid;
-                $DB->insert_record('edulink_homework_items', (object) $record);
+                $DB->insert_record('block_homework_item', (object) $record);
             }
             $result = array('success' => true, 'error' => '', 'name' => $learnername);
         }

@@ -29,7 +29,7 @@ require_once(__DIR__ . "/../classes/edulink/moodle.php");
 class ajaxgen_base {
 
     protected function get_str($id, $params = null) {
-        return moodle_utils::get_str($id, $params);
+        return block_homework_moodle_utils::get_str($id, $params);
     }
 
     protected function random_pastel_rgb($bias = 50) {

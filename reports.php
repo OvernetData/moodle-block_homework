@@ -26,15 +26,15 @@ require_once("classes/edulink/form_page_base.php");
 require_once("classes/edulink/controls.php");
 require_once("classes/edulink/moodle.php");
 
-use OvernetData\EduLinkHomework as e;
+use block_homework\edulink as e;
 
-class view_homework_reports_page extends e\form_page_base {
+class block_homework_view_reports_page extends e\block_homework_form_page_base {
 
     private $chartwidth = 550;
     private $chartheight = 300;
 
     public static function factory() {
-        return new view_homework_reports_page();
+        return new block_homework_view_reports_page();
     }
 
     public function get_title() {
@@ -54,7 +54,7 @@ class view_homework_reports_page extends e\form_page_base {
     public function get_content() {
         $this->set_scripts();
         $this->set_stylesheets();
-        $usertype = moodle_utils::get_user_type($this->userid);
+        $usertype = block_homework_moodle_utils::get_user_type($this->userid);
         if ($usertype == "employee") {
             $form = $this->get_form_settings();
             return $this->get_form($form, false, false);
@@ -77,7 +77,7 @@ class view_homework_reports_page extends e\form_page_base {
                 . '<canvas id="mychart3" width="' . $this->chartwidth . '" height="' . $this->chartheight . '"></canvas></div>'
                 . '</div>';
 
-        $useroptions = moodle_utils::get_teacher_users();
+        $useroptions = block_homework_moodle_utils::get_teacher_users();
 
         $form[$this->get_str('staffusage')] = array(
             'course' => array('type' => 'hidden', 'value' => $this->courseid),
@@ -91,7 +91,7 @@ class view_homework_reports_page extends e\form_page_base {
             'tab1' => array('type' => 'static', 'content' => $stafftab)
         );
 
-        $groupoptions = moodle_utils::get_groups();
+        $groupoptions = block_homework_moodle_utils::get_groups();
 
         $grouptab = $this->get_str('groupgrades');
         if (empty($groupoptions)) {
@@ -166,4 +166,4 @@ class view_homework_reports_page extends e\form_page_base {
 
 }
 
-view_homework_reports_page::factory();
+block_homework_view_reports_page::factory();

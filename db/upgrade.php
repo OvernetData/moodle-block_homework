@@ -24,6 +24,30 @@ require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/accesslib.php');
 
 function xmldb_block_homework_upgrade($oldversion = 0) {
+    global $DB;
     $result = true;
+
+    if ($oldversion < 2016061000) {
+        $transaction = $DB->start_delegated_transaction();
+        try {
+            print '<h2>1.0.23</h2>';
+            $dbman = $DB->get_manager();
+            if ($dbman->table_exists('edulink_homework')) {
+                print '<p>Renaming edulink_homework table to block_homework_assignment</p>';
+                $table = new xmldb_table('edulink_homework');
+                $dbman->rename_table($table, 'block_homework_assignment');
+            }
+            if ($dbman->table_exists('edulink_homework_items')) {
+                print '<p>Renaming edulink_homework_items table to block_homework_item</p>';
+                $table = new xmldb_table('edulink_homework_items');
+                $dbman->rename_table($table, 'block_homework_item');
+            }
+            $transaction->allow_commit();
+        } catch (Exception $e) {
+            $transaction->rollback($e);
+            $result = false;
+        }
+    }
+
     return $result;
 }

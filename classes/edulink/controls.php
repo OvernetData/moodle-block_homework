@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace OvernetData\EduLinkHomework;
+namespace block_homework\edulink;
 
 abstract class htmlControl {
 
@@ -263,7 +263,7 @@ class htmlColourInput extends htmlBaseTextInput {
 
     public function __construct($id, $name, $value, $title = null) {
         // We tend to store colours in r,g,b rather than hex so conver to hex notation if necessary.
-        $value = \homework_utils::rgb_to_hex($value);
+        $value = \block_homework_utils::rgb_to_hex($value);
         parent::__construct('color', $id, $name, $value, $title);
         $this->remove_class('form-control');
     }

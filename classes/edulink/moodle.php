@@ -31,7 +31,7 @@ require_once($moodlepath . "lib/modinfolib.php");
 require_once($moodlepath . "lib/datalib.php");
 require_once($moodlepath . "course/lib.php");
 
-class moodle_utils {
+class block_homework_moodle_utils {
 
     public static function get_str($id, $params = null) {
         if ($params == null) {
@@ -61,7 +61,7 @@ class moodle_utils {
                 JOIN {assign} a ON (a.id = cm.instance)
                 JOIN {grade_items} gi ON (gi.courseid = cm.course AND gi.itemtype = 'mod' AND gi.itemmodule = m.name AND
                     gi.iteminstance = a.id)
-                JOIN {edulink_homework} eh ON (eh.coursemoduleid = cm.id)
+                JOIN {block_homework_assignment} eh ON (eh.coursemoduleid = cm.id)
                 JOIN {user} u ON (u.id = eh.userid)
                 WHERE cm.course = ? AND a.duedate > ? AND cm.instance <> 0 AND m.visible = 1 AND m.name = 'assign'
                 ORDER BY a.duedate DESC";
@@ -120,7 +120,7 @@ class moodle_utils {
                 JOIN {assign} a ON (a.id = cm.instance)
                 JOIN {grade_items} gi ON (gi.courseid = cm.course AND gi.itemtype = 'mod' AND gi.itemmodule = 'assign'
                 AND gi.iteminstance = a.id)
-                JOIN {edulink_homework} eh ON (eh.coursemoduleid = cm.id)
+                JOIN {block_homework_assignment} eh ON (eh.coursemoduleid = cm.id)
                 JOIN {user} u ON (u.id = eh.userid)
                 WHERE cm.id = ?";
         $ass = $DB->get_record_sql($sql, array($coursemoduleid));
@@ -203,7 +203,7 @@ class moodle_utils {
                 JOIN {course_modules} cm ON (cm.course = c.id)
                 JOIN {modules} m ON (m.id = cm.module)
                 JOIN {assign} ass ON (ass.id = cm.instance)
-                JOIN {edulink_homework} eh ON (eh.coursemoduleid = cm.id)
+                JOIN {block_homework_assignment} eh ON (eh.coursemoduleid = cm.id)
                 WHERE ";
         if ($courseid != get_site()->id) {
             $sql .= "c.id = ? AND ";
@@ -486,6 +486,8 @@ class moodle_utils {
                     $activity->assignsubmission_file_maxfiles = $filesubmissions ? 1 : 0;
                     $activity->assignsubmission_file_maxsizebytes = 0;
 
+                    $activity->assignfeedback_comments_enabled = 1;
+
                     $activity->instance = $activity->id;
                     $activity->coursemodule = $coursemoduleid;
                     $result = assign_update_instance($activity, null);
@@ -623,7 +625,7 @@ LEFT OUTER JOIN {assign_grades} ag ON (ag.assignment = asub.assignment AND ag.us
 LEFT OUTER JOIN {grade_items} gi ON (gi.iteminstance = asub.assignment AND gi.itemtype = 'mod' AND gi.itemmodule = 'assign')
 LEFT OUTER JOIN {grade_grades} gg ON (gg.userid = asub.userid AND gg.itemid = gi.id)
 LEFT OUTER JOIN {assignfeedback_comments} afc ON (afc.assignment = asub.assignment AND afc.grade = ag.id)
-LEFT OUTER JOIN {edulink_homework_items} ehi ON (ehi.userid = u.id AND ehi.coursemoduleid = ?)
+LEFT OUTER JOIN {block_homework_item} ehi ON (ehi.userid = u.id AND ehi.coursemoduleid = ?)
 WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         $records = $DB->get_records_sql($sql, array($ass->id, $coursemoduleid));
         $statuses = array();
@@ -750,7 +752,7 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
                 $courses[$course->id] = $course;
             }
             $sql = "SELECT DISTINCT c.id FROM {course} c JOIN {course_modules} cm ON (c.id = cm.course) "
-                    . "JOIN {edulink_homework} eh ON (cm.id = eh.coursemoduleid) WHERE eh.userid = ?";
+                    . "JOIN {block_homework_assignment} eh ON (cm.id = eh.coursemoduleid) WHERE eh.userid = ?";
             $setcourses = $DB->get_records_sql($sql, array($userid));
             if ($setcourses) {
                 foreach ($setcourses as $setcourse) {
@@ -785,7 +787,8 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
             JOIN {role_assignments} ra ON (ra.userid = u.id)
             JOIN {role} r ON (r.id = ra.roleid)
             WHERE r.shortname IN ('manager','coursecreator','editingteacher','teacher')
-            UNION SELECT DISTINCT u.id, u.firstname, u.lastname FROM {user} u JOIN {edulink_homework} eh ON (u.id = eh.userid)
+            UNION SELECT DISTINCT u.id, u.firstname, u.lastname FROM {user} u
+                  JOIN {block_homework_assignment} eh ON (u.id = eh.userid)
             ORDER BY lastname, firstname";
 
         $rows = $DB->get_records_sql($sql);
@@ -801,7 +804,7 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
 
     public static function get_assignment_marked_done_count($coursemoduleid, $userid = 0) {
         global $DB;
-        $sql = "SELECT COUNT(*) FROM {edulink_homework_items} WHERE coursemoduleid = ? AND completed = 1";
+        $sql = "SELECT COUNT(*) FROM {block_homework_item} WHERE coursemoduleid = ? AND completed = 1";
         $params = array($coursemoduleid);
         if ($userid > 0) {
             $sql .= " AND userid = ?";

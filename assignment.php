@@ -30,9 +30,9 @@ require_once($CFG->dirroot . "/mod/assign/lib.php");
 require_once($CFG->dirroot . "/mod/assign/externallib.php");
 require_once($CFG->dirroot . "/lib/modinfolib.php");
 
-use OvernetData\EduLinkHomework as e;
+use block_homework\edulink as e;
 
-class view_homework_assignment_page extends e\form_page_base {
+class block_homework_view_assignment_page extends e\block_homework_form_page_base {
 
     protected $userid;
     protected $usertype = "";
@@ -42,14 +42,14 @@ class view_homework_assignment_page extends e\form_page_base {
     protected $canedit = 0;
 
     public static function factory() {
-        return new view_homework_assignment_page();
+        return new block_homework_view_assignment_page();
     }
 
     public function get_title() {
         $this->cmid = optional_param('id', 0, PARAM_INT);
-        $this->assignment = moodle_utils::get_assignment($this->cmid);
+        $this->assignment = block_homework_moodle_utils::get_assignment($this->cmid);
         $title = $this->get_str('viewhomeworkitem');
-        $this->usertype = moodle_utils::get_user_type($this->userid);
+        $this->usertype = block_homework_moodle_utils::get_user_type($this->userid);
         if ($this->usertype == "employee") {
             $title .= $this->get_str('teacherview');
             $context = context_module::instance($this->cmid);
@@ -58,7 +58,7 @@ class view_homework_assignment_page extends e\form_page_base {
             }
         } else if ($this->usertype == "learner") {
             $title .= $this->get_str('studentview');
-            $this->assignmentstatus = moodle_utils::get_assignment_status($this->cmid, $this->userid);
+            $this->assignmentstatus = block_homework_moodle_utils::get_assignment_status($this->cmid, $this->userid);
         } else if ($this->usertype == "parent") {
             $title .= $this->get_str('parentview');
             $this->children = HomeworkAccess::get_children($this->userid);
@@ -91,13 +91,13 @@ class view_homework_assignment_page extends e\form_page_base {
                 $cmid = optional_param('id', 0, PARAM_INT);
                 if (($userid != 0) && ($course != 0) && ($cmid != 0)) {
                     $checkexisting = array('coursemoduleid' => $cmid, 'userid' => $userid);
-                    $existing = $DB->get_record('edulink_homework_items', $checkexisting);
+                    $existing = $DB->get_record('block_homework_item', $checkexisting);
                     if ($existing) {
                         $record = array('id' => $existing->id, 'completed' => 1);
-                        $DB->update_record('edulink_homework_items', (object) $record);
+                        $DB->update_record('block_homework_item', (object) $record);
                     } else {
                         $record = array('coursemoduleid' => $cmid, 'userid' => $userid, 'completed' => 1);
-                        $DB->insert_record('edulink_homework_items', (object) $record);
+                        $DB->insert_record('block_homework_item', (object) $record);
                     }
                     $html = '<div class="ond_centered">';
                     $label = new e\htmlLabel('info', $this->get_str('assignmentmarkedasdone'));
@@ -206,15 +206,15 @@ class view_homework_assignment_page extends e\form_page_base {
 
         if ($this->usertype == "employee") {
             $form[$detailstab]['participants'] = array('type' => 'static', 'prompt' => $this->get_str('participants'),
-                'value' => count(moodle_utils::get_assignment_participants($this->cmid)));
+                'value' => count(block_homework_moodle_utils::get_assignment_participants($this->cmid)));
             if (!$this->assignment->nosubmissions) {
                 $form[$detailstab]['graded'] = array('type' => 'static', 'prompt' => $this->get_str('gradedsubmissions'),
-                    'value' => moodle_utils::get_assignment_graded_submission_count($this->cmid));
+                    'value' => block_homework_moodle_utils::get_assignment_graded_submission_count($this->cmid));
                 $form[$detailstab]['ungraded'] = array('type' => 'static', 'prompt' => $this->get_str('ungradedsubmissions'),
-                    'value' => moodle_utils::get_assignment_ungraded_submission_count($this->cmid));
+                    'value' => block_homework_moodle_utils::get_assignment_ungraded_submission_count($this->cmid));
             } else {
                 $form[$detailstab]['markeddone'] = array('type' => 'static', 'prompt' => $this->get_str('markeddone'),
-                    'value' => moodle_utils::get_assignment_marked_done_count($this->cmid));
+                    'value' => block_homework_moodle_utils::get_assignment_marked_done_count($this->cmid));
             }
         }
 
@@ -241,7 +241,7 @@ class view_homework_assignment_page extends e\form_page_base {
             foreach ($this->children as $childuserid => $childname) {
                 $userids[] = $childuserid;
             }
-            $assignmentstatuses = moodle_utils::get_assignment_statuses($this->cmid, $userids);
+            $assignmentstatuses = block_homework_moodle_utils::get_assignment_statuses($this->cmid, $userids);
             foreach ($this->children as $childuserid => $childname) {
                 if (isset($assignmentstatuses[$childuserid])) {
                     $assignmentstatus = $assignmentstatuses[$childuserid];
@@ -279,4 +279,4 @@ class view_homework_assignment_page extends e\form_page_base {
 
 }
 
-view_homework_assignment_page::factory();
+block_homework_view_assignment_page::factory();

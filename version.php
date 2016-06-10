@@ -23,8 +23,11 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2016060900;
+$plugin->version = 2016061000;
 $plugin->requires = 2015051100; // Requires Moodle 2.9 or above.
 $plugin->component = 'block_homework';
-$plugin->release = '1.0.22';
+$plugin->release = '1.0.23';
 $plugin->maturity = MATURITY_STABLE;
+$plugin->dependencies = array(
+    'mod_assign' => 2015051100  // Assignment module required.
+);

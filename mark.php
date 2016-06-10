@@ -30,23 +30,23 @@ require_once($CFG->dirroot . "/mod/assign/lib.php");
 require_once($CFG->dirroot . "/mod/assign/externallib.php");
 require_once($CFG->dirroot . "/lib/modinfolib.php");
 
-use OvernetData\EduLinkHomework as e;
+use block_homework\edulink as e;
 
-class mark_homework_page extends e\form_page_base {
+class block_homework_mark_page extends e\block_homework_form_page_base {
 
     protected $cmid = 0;
     protected $assignment;
     protected $behaviourpoints, $achievementpoints;
 
     public static function factory() {
-        return new mark_homework_page();
+        return new block_homework_mark_page();
     }
 
     public function get_title() {
         $title = $this->get_str('markhomework');
         $this->cmid = optional_param('id', 0, PARAM_INT);
         if ($this->cmid != 0) {
-            $this->assignment = moodle_utils::get_assignment($this->cmid);
+            $this->assignment = block_homework_moodle_utils::get_assignment($this->cmid);
             $title = $this->get_str('mark') . ' ' . $this->assignment->name;
         }
         return $title;
@@ -114,7 +114,7 @@ class mark_homework_page extends e\form_page_base {
         }
 
         $notsubmitted = $this->get_str('notsubmitted');
-        $users = moodle_utils::get_assignment_participants_and_statuses($this->cmid);
+        $users = block_homework_moodle_utils::get_assignment_participants_and_statuses($this->cmid);
         $learners = array();
         foreach ($users as $user) {
             $learners[] = $user->userid;
@@ -302,4 +302,4 @@ class mark_homework_page extends e\form_page_base {
 
 }
 
-mark_homework_page::factory();
+block_homework_mark_page::factory();

@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace OvernetData\EduLinkHomework;
+namespace block_homework\edulink;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -30,7 +30,7 @@ require_once("moodle.php");
 
 use Exception;
 
-abstract class moodle_page_base {
+abstract class block_homework_moodle_page_base {
 
     protected $content = '';
     protected $blockid = 'blocks/homework';
@@ -49,7 +49,7 @@ abstract class moodle_page_base {
         $PAGE->set_context(\context_system::instance());
         $this->userid = $USER->id;
 
-        $edulink = \moodle_utils::is_edulink_present();
+        $edulink = \block_homework_moodle_utils::is_edulink_present();
         if ($edulink) {
             $this->edulinkpresent = true;
             require_once($edulink);
@@ -112,13 +112,13 @@ abstract class moodle_page_base {
     }
 
     /**
-     * Just a convenience function so you can use $this->get_str... rather than moodle_utils::get_str!
+     * Just a convenience function so you can use $this->get_str... rather than block_homework_moodle_utils::get_str!
      * @param int $id
      * @param mixed $params
      * @return string
      */
     protected function get_str($id, $params = null) {
-        return \moodle_utils::get_str($id, $params);
+        return \block_homework_moodle_utils::get_str($id, $params);
     }
 
     /**

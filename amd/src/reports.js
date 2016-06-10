@@ -141,29 +141,24 @@ define(['jquery',
                     data: params
                     })
                 .done(function(data, textStatus, jqXHR) {
-                    try {
-                        var chartData = JSON.parse(data);
-                    } catch (e) {
-                        chartData = strs.failedtofetchdata;
-                    }
-                    if (typeof chartData != 'string') {
+                    if (typeof data.error == 'undefined') {
                         var ctx1 = document.getElementById('mychart1').getContext('2d');
                         if (chartinstance1) {
                             chartinstance1.destroy();
                         }
-                        chartinstance1 = new Chart(ctx1).Bar(chartData.chart1);
+                        chartinstance1 = new Chart(ctx1).Bar(data.chart1);
 
                         var ctx2 = document.getElementById('mychart2').getContext('2d');
                         if (chartinstance2) {
                             chartinstance2.destroy();
                         }
-                        chartinstance2 = new Chart(ctx2).Bar(chartData.chart2);
+                        chartinstance2 = new Chart(ctx2).Bar(data.chart2);
 
                         var ctx3 = document.getElementById('mychart3').getContext('2d');
                         if (chartinstance3) {
                             chartinstance3.destroy();
                         }
-                        chartinstance3 = new Chart(ctx3).Pie(chartData.chart3, {
+                        chartinstance3 = new Chart(ctx3).Pie(data.chart3, {
                             showTooltips: true,
                             onAnimationComplete: function() {
                                 this.showTooltip(this.segments, true);
@@ -172,15 +167,22 @@ define(['jquery',
                         });
 
                     } else {
-                        clearCanvas('mychart1', chartData);
-                        clearCanvas('mychart2', chartData);
-                        clearCanvas('mychart3', chartData);
-                        console.log(data);
+                        clearCanvas('mychart1', data.error);
+                        clearCanvas('mychart2', data.error);
+                        clearCanvas('mychart3', data.error);
                     }
                     $('#user').prop('disabled',false);
                     $('#from_staff').prop('disabled',false);
                     $('#to_staff').prop('disabled',false);
-            });
+                })
+                .error(function(jqXHR, textStatus, errorThrown){
+                    clearCanvas('mychart1', errorThrown);
+                    clearCanvas('mychart2', errorThrown);
+                    clearCanvas('mychart3', errorThrown);
+                    $('#user').prop('disabled',false);
+                    $('#from_staff').prop('disabled',false);
+                    $('#to_staff').prop('disabled',false);
+                });
         };
 
         var refreshGroup = function () {
@@ -204,24 +206,26 @@ define(['jquery',
                         data: params
                         })
                     .done(function(data, textStatus, jqXHR) {
-                        try {
-                            var tableData = JSON.parse(data);
-                        } catch (e) {
-                            tableData = strs.failedtofetchdata;
-                        }
-                        if (typeof(tableData) != 'string') {
-                            grouptableholder.html(tableData.html);
+                        if (typeof(data.error) == 'undefined') {
+                            grouptableholder.html(data.html);
                             $fetable.initialise("groupgrades", null, M.cfg.wwwroot + '/blocks/homework');
                         } else {
                             $('#groupgrades_loading').css("display","none");
-                            $('#groupgrades_loaded').html('<h4 class="ond_failure">' + tableData + '</h4>');
+                            $('#groupgrades_loaded').html('<h4 class="ond_failure">' + data.error + '</h4>');
                             $('#groupgrades_loaded').css("display","block");
-                            console.log(data);
                         }
                         $('#group').prop('disabled',false);
                         $('#from_group').prop('disabled',false);
                         $('#to_group').prop('disabled',false);
-                });
+                    })
+                    .error(function(jqXHR, textStatus, errorThrown){
+                        $('#groupgrades_loading').css("display","none");
+                        $('#groupgrades_loaded').html('<h4 class="ond_failure">' + errorThrown + '</h4>');
+                        $('#groupgrades_loaded').css("display","block");
+                        $('#group').prop('disabled',false);
+                        $('#from_group').prop('disabled',false);
+                        $('#to_group').prop('disabled',false);
+                    });
             }
         };
 
@@ -246,25 +250,28 @@ define(['jquery',
                         data: params
                         })
                     .done(function(data, textStatus, jqXHR) {
-                        try {
-                            var tableData = JSON.parse(data);
-                        } catch (e) {
-                            tableData = strs.failedtofetchdata;
-                        }
-                        if (typeof(tableData) != 'string') {
-                            $('#studenttableholder').html(tableData.html);
+                        if (typeof(data.error) == 'undefined') {
+                            $('#studenttableholder').html(data.html);
                             $fetable.initialise("studentgrades", null, M.cfg.wwwroot + '/blocks/homework');
                         } else {
                             $('#selectstudentmessage').css("display","none");
                             $('#studentgrades_loading').css("display","none");
-                            $('#studentgrades_loaded').html('<h4 class="ond_failure">' + tableData + '</h4>');
+                            $('#studentgrades_loaded').html('<h4 class="ond_failure">' + data.error + '</h4>');
                             $('#studentgrades_loaded').css("display","block");
-                            console.log(data);
                         }
                         $('#student').prop('disabled',false);
                         $('#from_student').prop('disabled',false);
                         $('#to_student').prop('disabled',false);
-                });
+                    })
+                    .error(function(jqXHR, textStatus, errorThrown){
+                        $('#selectstudentmessage').css("display","none");
+                        $('#studentgrades_loading').css("display","none");
+                        $('#studentgrades_loaded').html('<h4 class="ond_failure">' + errorThrown + '</h4>');
+                        $('#studentgrades_loaded').css("display","block");
+                        $('#student').prop('disabled',false);
+                        $('#from_student').prop('disabled',false);
+                        $('#to_student').prop('disabled',false);
+                    });
             }
         };
         
@@ -314,17 +321,12 @@ define(['jquery',
                     data: params
                     })
                 .done(function(data, textStatus, jqXHR) {
-                    try {
-                        var chartData = JSON.parse(data);
-                    } catch (e) {
-                        chartData = strs.failedtofetchdata;
-                    }
-                    if (typeof chartData != 'string') {
+                    if (typeof data.error == 'undefined') {
                         var ctx4 = document.getElementById('mychart4').getContext('2d');
                         if (chartinstance4) {
                             chartinstance4.destroy();
                         }
-                        chartinstance4 = new Chart(ctx4).Pie(chartData.chart4, {
+                        chartinstance4 = new Chart(ctx4).Pie(data.chart4, {
                             showTooltips: true,
                             onAnimationComplete: function() {
                                 this.showTooltip(this.segments, true);
@@ -335,7 +337,7 @@ define(['jquery',
                         if (chartinstance5) {
                             chartinstance5.destroy();
                         }
-                        chartinstance5 = new Chart(ctx5).Pie(chartData.chart5, {
+                        chartinstance5 = new Chart(ctx5).Pie(data.chart5, {
                             showTooltips: true,
                             onAnimationComplete: function() {
                                 this.showTooltip(this.segments, true);
@@ -343,20 +345,28 @@ define(['jquery',
                             tooltipTemplate: "<%= label %> - <%= value %>"
                         });
                         
-                        $('#staffstatisticstableholder').html(chartData.html);
+                        $('#staffstatisticstableholder').html(data.html);
                         $fetable.initialise("staffstatistics", null, M.cfg.wwwroot + '/blocks/homework');
 
                     } else {
-                        clearCanvas('mychart4', chartData);
-                        clearCanvas('mychart5', chartData);
+                        clearCanvas('mychart4', data.error);
+                        clearCanvas('mychart5', data.error);
                         $('#staffstatistics_loading').css("display","none");
-                        $('#staffstatistics_loaded').html('<h4 class="ond_failure">' + chartData + '</h4>');
+                        $('#staffstatistics_loaded').html('<h4 class="ond_failure">' + data.error + '</h4>');
                         $('#staffstatistics_loaded').css("display","block");
-                        console.log(data);
                     }
                     $('#from_school').prop('disabled',false);
                     $('#to_school').prop('disabled',false);
-            });
+                })
+                .error(function(jqXHR, textStatus, errorThrown){
+                    clearCanvas('mychart4', errorThrown);
+                    clearCanvas('mychart5', errorThrown);
+                    $('#staffstatistics_loading').css("display","none");
+                    $('#staffstatistics_loaded').html('<h4 class="ond_failure">' + errorThrown + '</h4>');
+                    $('#staffstatistics_loaded').css("display","block");
+                    $('#from_school').prop('disabled',false);
+                    $('#to_school').prop('disabled',false);
+                });
         };
     };
 

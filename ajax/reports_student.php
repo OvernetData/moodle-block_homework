@@ -22,10 +22,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+define('AJAX_SCRIPT', true);
 require_once(__DIR__ . "/../classes/edulink/controls.php");
 require_once("ajaxbase.php");
 
-use OvernetData\EduLinkHomework as e;
+use block_homework\edulink as e;
 
 class ajaxgen_reports_student extends ajaxgen_base {
 
@@ -56,7 +57,7 @@ class ajaxgen_reports_student extends ajaxgen_base {
          * 3. fill in grid
          */
 
-        $assignments = moodle_utils::get_assignments_for_group($course, 0, $from, $to);
+        $assignments = block_homework_moodle_utils::get_assignments_for_group($course, 0, $from, $to);
         if (!empty($assignments)) {
             $table = new e\htmlTable('studentgrades');
             $table->add_header(new e\htmlTableHeader('', '', $this->get_str('issued')));
@@ -69,17 +70,17 @@ class ajaxgen_reports_student extends ajaxgen_base {
             $table->add_header(new e\htmlTableHeader('', '', $this->get_str('feedback')));
 
             foreach ($assignments as $assignment) {
-                if (!moodle_utils::user_is_assignment_participant($student, $assignment->id)) {
+                if (!block_homework_moodle_utils::user_is_assignment_participant($student, $assignment->id)) {
                     continue;
                 }
                 $table->add_row();
 
-                $issuedcell = new e\htmlTableCell('', '',  homework_utils::format_date($assignment->availabledate));
-                $issuedcell->set_property('data-sort', homework_utils::date_for_sorting($assignment->availabledate));
+                $issuedcell = new e\htmlTableCell('', '',  block_homework_utils::format_date($assignment->availabledate));
+                $issuedcell->set_property('data-sort', block_homework_utils::date_for_sorting($assignment->availabledate));
                 $table->add_cell($issuedcell);
 
-                $duecell = new e\htmlTableCell('', '',  homework_utils::format_date($assignment->duedate));
-                $duecell->set_property('data-sort', homework_utils::date_for_sorting($assignment->duedate));
+                $duecell = new e\htmlTableCell('', '', block_homework_utils::format_date($assignment->duedate));
+                $duecell->set_property('data-sort', block_homework_utils::date_for_sorting($assignment->duedate));
                 $table->add_cell($duecell);
 
                 $coursename = $assignment->coursename;
@@ -90,11 +91,11 @@ class ajaxgen_reports_student extends ajaxgen_base {
 
                 $table->add_cell(new e\htmlTableCell('', '', $assignment->assignmentname));
 
-                $durationcell = new e\htmlTableCell('', '', homework_utils::get_duration_description($assignment->duration));
+                $durationcell = new e\htmlTableCell('', '', block_homework_utils::get_duration_description($assignment->duration));
                 $durationcell->set_property('data-sort', empty($assignment->duration) ? 0 : $assignment->duration);
                 $table->add_cell($durationcell);
 
-                $status = moodle_utils::get_assignment_status($assignment->id, $student);
+                $status = block_homework_moodle_utils::get_assignment_status($assignment->id, $student);
 
                 $table->add_cell(new e\htmlTableCell('', '', $status->status));
 

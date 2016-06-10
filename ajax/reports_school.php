@@ -22,10 +22,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+define('AJAX_SCRIPT', true);
 require_once(__DIR__ . "/../classes/edulink/controls.php");
 require_once("ajaxbase.php");
 
-use OvernetData\EduLinkHomework as e;
+use block_homework\edulink as e;
 
 class ajaxgen_reports_school extends ajaxgen_base {
 
@@ -45,7 +46,7 @@ class ajaxgen_reports_school extends ajaxgen_base {
             die(json_encode($this->get_str('invaliddatesupplied')));
         }
 
-        $stats = homework_utils::get_homework_statistics($from, $to, $course);
+        $stats = block_homework_utils::get_homework_statistics($from, $to, $course);
 
         $bysubject = array();
         $byuser = array();
@@ -67,8 +68,10 @@ class ajaxgen_reports_school extends ajaxgen_base {
                     'fullname' => $stat["fullname"]);
             }
             $byuser[$userid]['set']++;
-            $byuser[$userid]['graded'] += moodle_utils::get_assignment_graded_submission_count($stat["coursemoduleid"], $userid);
-            $byuser[$userid]['participants'] += count(moodle_utils::get_assignment_participants($stat["coursemoduleid"]));
+            $byuser[$userid]['graded'] += block_homework_moodle_utils::get_assignment_graded_submission_count(
+                $stat["coursemoduleid"], $userid);
+            $byuser[$userid]['participants'] += count(block_homework_moodle_utils::get_assignment_participants(
+                $stat["coursemoduleid"]));
         }
 
         $chart4 = array();

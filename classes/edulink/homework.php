@@ -23,15 +23,15 @@
 require_once("moodle.php");
 require_once("controls.php");
 
-use OvernetData\EduLinkHomework as e;
+use block_homework\edulink as e;
 
 defined('MOODLE_INTERNAL') || die();
 
-class homework_utils {
+class block_homework_utils {
 
     public static function format_date($epoch, $short = false) {
         if ($epoch <= 0) {
-            return moodle_utils::get_str('notapplicable');
+            return block_homework_moodle_utils::get_str('notapplicable');
         }
         $format = $short ? 'strftimedateshort' : 'strftimedate';
         return userdate($epoch, get_string($format));
@@ -39,21 +39,21 @@ class homework_utils {
 
     public static function friendly_date($epoch) {
         if ($epoch <= 0) {
-            return moodle_utils::get_str('notapplicable');
+            return block_homework_moodle_utils::get_str('notapplicable');
         }
         $today = strtotime(date('Y-m-d'));
         $date = strtotime(date('Y-m-d', $epoch));
         $difference = round(($date - $today) / (24 * 60 * 60));
         if ($difference == 0) {
-            return moodle_utils::get_str('today');
+            return block_homework_moodle_utils::get_str('today');
         } else if ($difference == 1) {
-            return moodle_utils::get_str('tomorrow');
+            return block_homework_moodle_utils::get_str('tomorrow');
         } else if ($difference == -1) {
-            return moodle_utils::get_str('yesterday');
+            return block_homework_moodle_utils::get_str('yesterday');
         } else if ($difference < -1) {
-            return moodle_utils::get_str('xdaysago', abs($difference));
+            return block_homework_moodle_utils::get_str('xdaysago', abs($difference));
         } else {
-            return moodle_utils::get_str('inxdays', $difference);
+            return block_homework_moodle_utils::get_str('inxdays', $difference);
         }
     }
 
@@ -63,7 +63,7 @@ class homework_utils {
 
     public static function get_homework_for_course($courseid, $userid, $onlyifavailable, $maxdaysage = 28) {
         $homework = array();
-        $activities = moodle_utils::get_assignments_on_course($courseid, $maxdaysage);
+        $activities = block_homework_moodle_utils::get_assignments_on_course($courseid, $maxdaysage);
         foreach ($activities as $activity) {
             $availabledate = (int) $activity->availabledate;
             $duedate = (int) $activity->duedate;
@@ -88,13 +88,13 @@ class homework_utils {
         ksort($orderedhomework);
         foreach ($orderedhomework as $item) {
             $context = context_module::instance($item->id);
-            $userisparticipant = moodle_utils::user_is_assignment_participant($userid, $item->id);
+            $userisparticipant = block_homework_moodle_utils::user_is_assignment_participant($userid, $item->id);
             if ((!has_capability('moodle/course:manageactivities', $context)) && (!$userisparticipant)) {
                 continue;
             }
             $status = false;
             if ($userisparticipant) {
-                $status = moodle_utils::get_assignment_status($item->id, $userid);
+                $status = block_homework_moodle_utils::get_assignment_status($item->id, $userid);
             }
 
             // If a student or parent and the due date has passed and the homework was completed, don't show it.
@@ -121,7 +121,7 @@ class homework_utils {
                 $popup .= get_string('due', 'block_homework') . ': ' . self::format_date($item->duedate, true);
             }
             if (($usertype == "employee") && ($CFG->enableavailability != 0)) {
-                $avail = moodle_utils::get_assignment_availability_text($item->id);
+                $avail = block_homework_moodle_utils::get_assignment_availability_text($item->id);
                 if (!empty($avail)) {
                     $avail = str_ireplace(array('<div class="availabilityinfo ">', '</div>'), '', $avail);
                     if ($popup != '') {
@@ -132,9 +132,10 @@ class homework_utils {
             }
 
             $html .= '<div id="ond_homework_item_' . $item->id . '" title="' . $popup . '"><table class="ond_homework_item"><tr>' .
-                    '<td class="ond_homework_item_status">' . moodle_utils::get_assignment_status_icon($status, $item->duedate) .
+                    '<td class="ond_homework_item_status">' . block_homework_moodle_utils::get_assignment_status_icon($status,
+                            $item->duedate) .
                     '</td>' .
-                    '<td class="ond_homework_item_name">' . moodle_utils::get_assignment_name($item->id);
+                    '<td class="ond_homework_item_name">' . block_homework_moodle_utils::get_assignment_name($item->id);
             $coursename = '';
             if ($showcoursename) {
                 if ($item->subject != '') {
@@ -163,16 +164,16 @@ class homework_utils {
 
     public static function get_unmarked_homework_count_for_course($courseid, $userid) {
         if ($courseid == get_site()->id) {
-            $courses = moodle_utils::get_users_courses($userid);
+            $courses = block_homework_moodle_utils::get_users_courses($userid);
         } else {
             $courses = array((object) array('id' => $courseid));
         }
         $unmarked = 0;
         foreach ($courses as $course) {
-            $activities = moodle_utils::get_assignments_on_course($course->id, 28); // 28 days max age.
+            $activities = block_homework_moodle_utils::get_assignments_on_course($course->id, 28); // 28 days max age.
             foreach ($activities as $activity) {
                 if (($activity->grade != 0) && (!$activity->nosubmissions)) {
-                    $unmarked += moodle_utils::get_assignment_ungraded_submission_count($activity->id);
+                    $unmarked += block_homework_moodle_utils::get_assignment_ungraded_submission_count($activity->id);
                 }
             }
         }
@@ -192,14 +193,14 @@ class homework_utils {
             'notesforparentssubject' => $notesforparentssubject,
             'notesforparents' => $notesforparents
         );
-        return $DB->insert_record('edulink_homework', $do);
+        return $DB->insert_record('block_homework_assignment', $do);
     }
 
     public static function update_homework_tracking_record($coursemoduleid, $userid, $subject, $duration, $notifyparents,
                                                            $notesforparentssubject, $notesforparents) {
         global $DB;
 
-        $id = $DB->get_field('edulink_homework', 'id', array('coursemoduleid' => $coursemoduleid));
+        $id = $DB->get_field('block_homework_assignment', 'id', array('coursemoduleid' => $coursemoduleid));
         if ($id) {
             $do = array(
                 'id' => $id,
@@ -210,7 +211,7 @@ class homework_utils {
                 'notesforparentssubject' => $notesforparentssubject,
                 'notesforparents' => $notesforparents
             );
-            return $DB->update_record('edulink_homework', $do);
+            return $DB->update_record('block_homework_assignment', $do);
         } else {
             return false;
         }
@@ -219,8 +220,8 @@ class homework_utils {
     public static function remove_homework_tracking_record($coursemoduleid) {
         global $DB;
 
-        $DB->delete_records('edulink_homework', array('coursemoduleid' => $coursemoduleid));
-        $DB->delete_records('edulink_homework_items', array('coursemoduleid' => $coursemoduleid));
+        $DB->delete_records('block_homework_assignment', array('coursemoduleid' => $coursemoduleid));
+        $DB->delete_records('block_homework_item', array('coursemoduleid' => $coursemoduleid));
     }
 
     public static function get_homework_statistics($fromdate = 0, $todate = 0, $courseid = 0, $setbyuserid = 0) {
@@ -233,7 +234,7 @@ class homework_utils {
             JOIN {course_modules} cm ON (cm.module = m.id)
             JOIN {course} c ON (c.id = cm.course)
             JOIN {assign} a ON (a.id = cm.instance)
-            JOIN {edulink_homework} eh ON (eh.coursemoduleid = cm.id)
+            JOIN {block_homework_assignment} eh ON (eh.coursemoduleid = cm.id)
             JOIN {user} u ON (u.id = eh.userid)
             WHERE m.name = 'assign' AND a.duedate <> 0";
         $params = array();
@@ -258,7 +259,8 @@ class homework_utils {
                 $lastname = $row->lastname;
                 $fullname = trim($firstname . ' ' . $lastname);
                 /* if ($userid == '') {
-                    list($userid, $fullname, $firstname, $lastname) = moodle_utils::get_course_module_creator($row->id);
+                    list($userid, $fullname, $firstname, $lastname) = block_homework_moodle_utils::get_course_module_creator(
+                        $row->id);
                 } */
                 if (($setbyuserid == 0) || ($userid == $setbyuserid)) {
                     $result[] = array(

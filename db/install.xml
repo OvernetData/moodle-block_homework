@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="edulink_homework" COMMENT="Table recording which Moodle course activity assignments were set by EduLink Homework block">
+    <TABLE NAME="block_homework_assignment" COMMENT="Table recording which Moodle course activity assignments were set by EduLink Homework block">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="coursemoduleid"/>
         <FIELD NAME="coursemoduleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="userid"/>
@@ -23,7 +23,7 @@
         <INDEX NAME="ix_userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="edulink_homework_items" COMMENT="Table recording which SIMS achievement/behaviour items were logged against activity assignments set by EduLink Homework block">
+    <TABLE NAME="block_homework_item" COMMENT="Table recording which SIMS achievement/behaviour items were logged against activity assignments set by EduLink Homework block">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="coursemoduleid"/>
         <FIELD NAME="coursemoduleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="userid"/>

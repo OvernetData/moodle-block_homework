@@ -25,7 +25,7 @@ require_once(__DIR__ . "/../../config.php");
 require_once("classes/edulink/controls.php");
 require_once("classes/edulink/homework.php");
 
-use OvernetData\EduLinkHomework as e;
+use block_homework\edulink as e;
 
 class block_homework extends \block_list {
 
@@ -66,7 +66,7 @@ class block_homework extends \block_list {
         $onfrontpage = $COURSE->id == get_site()->id;
 
         $this->userid = $USER->id;
-        $this->usertype = moodle_utils::get_user_type($this->userid);
+        $this->usertype = block_homework_moodle_utils::get_user_type($this->userid);
         if ($this->usertype == "parent") {
             $this->children = HomeworkAccess::get_children($this->userid);
         }
@@ -74,10 +74,10 @@ class block_homework extends \block_list {
         $courses = array();
         if ($onfrontpage) {
             if (empty($this->children)) {
-                $courses = moodle_utils::get_users_courses($this->userid);
+                $courses = block_homework_moodle_utils::get_users_courses($this->userid);
             } else {
                 foreach ($this->children as $childuserid => $childname) {
-                    $childscourses = moodle_utils::get_users_courses($childuserid);
+                    $childscourses = block_homework_moodle_utils::get_users_courses($childuserid);
                     foreach ($childscourses as $courseid => $course) {
                         if (!isset($courses[$courseid])) {
                             $courses[$courseid] = $course;
@@ -125,10 +125,10 @@ class block_homework extends \block_list {
             }
             foreach ($courses as $course) {
                 $homeworkactivities = array_merge($homeworkactivities,
-                                                homework_utils::get_homework_for_course($course->id, $userid, true, $maxdaysage));
+                                                block_homework_utils::get_homework_for_course($course->id, $userid, true, $maxdaysage));
             }
             if (!empty($homeworkactivities)) {
-                $homeworkhtml = homework_utils::homework_items_for_block_list($homeworkactivities, $userid, $onfrontpage,
+                $homeworkhtml = block_homework_utils::homework_items_for_block_list($homeworkactivities, $userid, $onfrontpage,
                         $this->usertype);
                 if (!empty($homeworkhtml)) {
                     $somehomework = true;
@@ -168,7 +168,7 @@ class block_homework extends \block_list {
         }
 
         if ($this->usertype == "employee") {
-            $tomark = homework_utils::get_unmarked_homework_count_for_course($COURSE->id, $this->userid);
+            $tomark = block_homework_utils::get_unmarked_homework_count_for_course($COURSE->id, $this->userid);
             $tomarkhtml = '';
             if (!empty($tomark)) {
                 $badge = new e\htmlBadge($tomark);

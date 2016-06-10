@@ -30,16 +30,16 @@ require_once($CFG->dirroot . "/mod/assign/lib.php");
 require_once($CFG->dirroot . "/mod/assign/externallib.php");
 require_once($CFG->dirroot . "/lib/modinfolib.php");
 
-use OvernetData\EduLinkHomework as e;
+use block_homework\edulink as e;
 
-class view_homework_page extends e\form_page_base {
+class block_homework_view_page extends e\block_homework_form_page_base {
 
     protected $userid;
     protected $usertype = "";
     protected $children = array();
 
     public static function factory() {
-        return new view_homework_page();
+        return new block_homework_view_page();
     }
 
     public function get_title() {
@@ -52,7 +52,7 @@ class view_homework_page extends e\form_page_base {
         }
 
         $this->userid = $USER->id;
-        $this->usertype = moodle_utils::get_user_type($this->userid);
+        $this->usertype = block_homework_moodle_utils::get_user_type($this->userid);
         if ($this->usertype == "employee") {
             $title .= $this->get_str('teacherview');
         } else if ($this->usertype == "learner") {
@@ -71,7 +71,7 @@ class view_homework_page extends e\form_page_base {
         $this->set_stylesheets();
         $context = context_course::instance($this->courseid);
         if ($this->onfrontpage) {
-            $courses = moodle_utils::get_users_courses($USER->id);
+            $courses = block_homework_moodle_utils::get_users_courses($USER->id);
             if (!empty($courses)) {
                 $context = context_course::instance(reset($courses)->id);
             }
@@ -160,4 +160,4 @@ class view_homework_page extends e\form_page_base {
 
 }
 
-view_homework_page::factory();
+block_homework_view_page::factory();

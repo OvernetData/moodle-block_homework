@@ -31,7 +31,7 @@ class observers {
 
     public static function course_module_deleted(\core\event\course_module_deleted $event) {
         $coursemoduleid = $event->get_data()["objectid"];
-        \homework_utils::remove_homework_tracking_record($coursemoduleid);
+        \block_homework_utils::remove_homework_tracking_record($coursemoduleid);
     }
 
 }

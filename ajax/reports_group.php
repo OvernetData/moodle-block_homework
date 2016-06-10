@@ -22,10 +22,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+define('AJAX_SCRIPT', true);
 require_once(__DIR__ . "/../classes/edulink/controls.php");
 require_once("ajaxbase.php");
 
-use OvernetData\EduLinkHomework as e;
+use block_homework\edulink as e;
 
 class ajaxgen_reports_group extends ajaxgen_base {
 
@@ -49,7 +50,7 @@ class ajaxgen_reports_group extends ajaxgen_base {
         }
 
         $html = '';
-        $groupmembers = moodle_utils::get_group_members($group);
+        $groupmembers = block_homework_moodle_utils::get_group_members($group);
         if (!empty($groupmembers)) {
 
             /*
@@ -58,7 +59,7 @@ class ajaxgen_reports_group extends ajaxgen_base {
              * 3. fill in grid
              */
 
-            $assignments = moodle_utils::get_assignments_for_group($course, $group, $from, $to);
+            $assignments = block_homework_moodle_utils::get_assignments_for_group($course, $group, $from, $to);
             if (!empty($assignments)) {
 
                 // First get rid of any assignments that aren't for any of our group members.
@@ -66,7 +67,7 @@ class ajaxgen_reports_group extends ajaxgen_base {
                     $assignment = $assignments[$i];
                     $noparticipants = true;
                     foreach ($groupmembers as $student) {
-                        if (moodle_utils::user_is_assignment_participant($student->id, $assignment->id)) {
+                        if (block_homework_moodle_utils::user_is_assignment_participant($student->id, $assignment->id)) {
                             $noparticipants = false;
                             break;
                         }
@@ -79,7 +80,7 @@ class ajaxgen_reports_group extends ajaxgen_base {
                 $table = new e\htmlTable('groupgrades');
                 $table->add_header(new e\htmlTableHeader('', '', $this->get_str("student")));
                 foreach ($assignments as $assignment) {
-                    $assheader = new e\htmlTableHeader('', '', homework_utils::format_date($assignment->duedate));
+                    $assheader = new e\htmlTableHeader('', '', block_homework_utils::format_date($assignment->duedate));
                     $title = '';
                     if ($course == get_site()->id) {
                         $title = $assignment->coursename . ', ';
@@ -94,8 +95,8 @@ class ajaxgen_reports_group extends ajaxgen_base {
                     $namecell->set_property('data-sort', $student->reversename);
                     $table->add_cell($namecell);
                     foreach ($assignments as $assignment) {
-                        if (moodle_utils::user_is_assignment_participant($student->id, $assignment->id)) {
-                            $status = moodle_utils::get_assignment_status($assignment->id, $student->id, false);
+                        if (block_homework_moodle_utils::user_is_assignment_participant($student->id, $assignment->id)) {
+                            $status = block_homework_moodle_utils::get_assignment_status($assignment->id, $student->id, false);
                             $grade = '';
                             if ($status->graded) {
                                 $grade = str_replace('&nbsp;', ' ', $status->grade);

@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+define('AJAX_SCRIPT', true);
 require_once("ajaxbase.php");
 
 class ajaxgen_reports_staff extends ajaxgen_base {
@@ -64,7 +65,7 @@ class ajaxgen_reports_staff extends ajaxgen_base {
             }
         } while ($dateid < $yearto . $monthto);
 
-        $stats = homework_utils::get_homework_statistics($from, $to, $course, $user);
+        $stats = block_homework_utils::get_homework_statistics($from, $to, $course, $user);
 
         $bygroup = array();
         foreach ($stats as $stat) {
@@ -78,7 +79,8 @@ class ajaxgen_reports_staff extends ajaxgen_base {
             if (!isset($gradedbymonth[$dateid])) {
                 $gradedbymonth[$dateid] = 0;
             }
-            $gradedbymonth[$dateid] += moodle_utils::get_assignment_graded_submission_count($stat["coursemoduleid"], $user);
+            $gradedbymonth[$dateid] += block_homework_moodle_utils::get_assignment_graded_submission_count(
+                $stat["coursemoduleid"], $user);
 
             $a = json_decode($stat["availability"]);
             // Only detangle availability structure if it's the simple 'any of these groups' variation.
