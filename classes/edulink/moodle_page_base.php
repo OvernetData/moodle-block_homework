@@ -62,6 +62,7 @@ abstract class block_homework_moodle_page_base {
         $this->onfrontpage = $this->courseid == $this->siteid;
         if (!$this->onfrontpage) {
             $this->course = get_course($this->courseid);
+            $PAGE->set_context(\context_course::instance($this->courseid));
         }
 
         $this->title = $this->get_title();
