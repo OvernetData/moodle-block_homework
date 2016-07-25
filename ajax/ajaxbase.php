@@ -23,8 +23,8 @@
  */
 require_once(__DIR__ . "/../../../config.php");
 require_once($CFG->libdir . "/moodlelib.php");
-require_once(__DIR__ . "/../classes/edulink/homework.php");
-require_once(__DIR__ . "/../classes/edulink/moodle.php");
+require_once(__DIR__ . "/../edulink_classes/homework.php");
+require_once(__DIR__ . "/../edulink_classes/moodle.php");
 
 class ajaxgen_base {
 

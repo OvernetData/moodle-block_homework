@@ -22,10 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . "/../../config.php");
-require_once("classes/edulink/controls.php");
-require_once("classes/edulink/homework.php");
+require_once("edulink_classes/controls.php");
+require_once("edulink_classes/homework.php");
 
-use block_homework\edulink as e;
+use block_homework\local\edulink as e;
 
 class block_homework extends \block_list {
 

@@ -22,15 +22,15 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . "/../../config.php");
-require_once("classes/edulink/form_page_base.php");
-require_once("classes/edulink/moodle.php");
-require_once("classes/edulink/homework.php");
+require_once("edulink_classes/form_page_base.php");
+require_once("edulink_classes/moodle.php");
+require_once("edulink_classes/homework.php");
 require_once($CFG->dirroot . "/mod/assign/lib.php");
 require_once($CFG->dirroot . "/mod/assign/externallib.php");
 require_once($CFG->dirroot . "/lib/modinfolib.php");
 require_once($CFG->dirroot . "/lib/formslib.php");
 
-use block_homework\edulink as e;
+use block_homework\local\edulink as e;
 
 class block_homework_file_uploader_form extends moodleform {
 

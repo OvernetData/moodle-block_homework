@@ -23,7 +23,7 @@
 require_once("moodle.php");
 require_once("controls.php");
 
-use block_homework\edulink as e;
+use block_homework\local\edulink as e;
 
 defined('MOODLE_INTERNAL') || die();
 

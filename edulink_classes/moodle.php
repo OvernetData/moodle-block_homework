@@ -22,7 +22,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$moodlepath = dirname(__FILE__) . "/../../../../";
+$moodlepath = dirname(__FILE__) . "/../../../";
 require_once($moodlepath . "config.php");
 require_once($moodlepath . "mod/assign/lib.php");
 require_once($moodlepath . "mod/assign/locallib.php");

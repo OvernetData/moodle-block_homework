@@ -23,7 +23,7 @@
  */
 define('AJAX_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
-require_once(__DIR__ . '/../classes/edulink/moodle.php');
+require_once(__DIR__ . '/../edulink_classes/moodle.php');
 require_once(block_homework_moodle_utils::is_edulink_present());
 
 global $DB, $PAGE, $OUTPUT;

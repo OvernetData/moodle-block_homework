@@ -22,10 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define('AJAX_SCRIPT', true);
-require_once(__DIR__ . "/../classes/edulink/controls.php");
+require_once(__DIR__ . "/../edulink_classes/controls.php");
 require_once("ajaxbase.php");
 
-use block_homework\edulink as e;
+use block_homework\local\edulink as e;
 
 class ajaxgen_view_timetable extends ajaxgen_base {
 

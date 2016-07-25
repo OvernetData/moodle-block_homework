@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_homework\edulink;
+namespace block_homework\local\edulink;
 
 defined('MOODLE_INTERNAL') || die();
 

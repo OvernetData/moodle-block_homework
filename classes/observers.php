@@ -25,7 +25,7 @@ namespace block_homework;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/blocks/homework/classes/edulink/homework.php');
+require_once($CFG->dirroot . '/blocks/homework/edulink_classes/homework.php');
 
 class observers {
 

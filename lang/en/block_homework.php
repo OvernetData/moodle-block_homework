@@ -72,7 +72,7 @@ $string['newhomework'] = 'New Homework';
 $string['description_help'] = 'A detailed description of the homework assignment';
 $string['restricttogroups'] = 'Restrict to groups';
 $string['groups_help'] = 'If you have groups on your course the groups selected here will be able to see the activity whereas other enrolled students will not (this can be useful for differentiation)';
-$string['groups-none_help'] = $string['groups_help'];
+$string['groups-none_help'] = 'If you have groups on your course the groups selected here will be able to see the activity whereas other enrolled students will not (this can be useful for differentiation)';
 $string['nogroupsoncourse'] = 'No groups on course, homework will be set for for all course participants';
 $string['enableavailabilityoff'] = 'Enable restricted access is turned off in Moodle configuration, homework will be set for all course participants';
 $string['subject_help'] = 'This is used in the reporting section of this block';
@@ -114,7 +114,7 @@ $string['note_to_parents_help'] = 'Body of the notification email - you can use 
 $string['addfiles'] = 'Add file(s)';
 $string['addfiles_help'] = 'Upload any file(s) relating to the homework assignment';
 $string['selectcourse'] = 'Select Course';
-$string['selectcourse_help'] = $string['courselabel_help'];
+$string['selectcourse_help'] = 'This is the course the Homework Assignment Activity will be added to. Only the students enrolled on this course will have access to the activity.';
 $string['on'] = 'On';
 $string['off'] = 'Off';
 $string['sethomeworkforall'] = 'Set homework for all course participants';
@@ -286,6 +286,7 @@ $string['valuerange'] = 'Value must be in range';
 $string['requiredfield'] = 'Required field';
 $string['correcthighlightederrors'] = 'Correct the highlighted error(s) before saving';
 $string['oops'] = 'Oops...';
+$string['okbutton'] = 'OK';
 
 // Homework utils.
 $string['setby'] = 'Set by';

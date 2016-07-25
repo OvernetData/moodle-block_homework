@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_homework\edulink;
+namespace block_homework\local\edulink;
 
 require_once("moodle_page_base.php");
 
@@ -89,11 +89,11 @@ abstract class block_homework_form_page_base extends block_homework_moodle_page_
         if ($savebutton || $cancelbutton) {
             $html .= '<div class="ond_centered" id="ond_form_buttons">';
             if ($savebutton) {
-                $submit = new \block_homework\edulink\htmlButton('btnsubmit', $savebutton);
+                $submit = new \block_homework\local\edulink\htmlButton('btnsubmit', $savebutton);
                 $html .= $submit->get_html();
             }
             if ($cancelbutton) {
-                $cancel = new \block_homework\edulink\htmlButton('btncancel', $cancelbutton);
+                $cancel = new \block_homework\local\edulink\htmlButton('btncancel', $cancelbutton);
                 $html .= $cancel->get_html();
             }
             $html .= '</div>';

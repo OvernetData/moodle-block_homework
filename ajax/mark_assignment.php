@@ -25,7 +25,7 @@
 define('AJAX_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
 require_once(__DIR__ . '/../../../mod/assign/externallib.php');
-require_once(__DIR__ . '/../classes/edulink/moodle.php');
+require_once(__DIR__ . '/../edulink_classes/moodle.php');
 
 global $DB, $PAGE, $OUTPUT;
 

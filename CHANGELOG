@@ -1,0 +1,8 @@
+1.0.24
+    * Standards fix #8 - language file simplified
+    * Standards fix #6 - namespace block_homework\edulink renamed to 
+      block_homework\local\edulink and class files moved to edulink_classes
+    * Bug fix #5 - redundant viewreports capability removed
+    * Bug fix - added missing language string for OK button
+    * Bug fix - page context set to course context when applicable, fixes lack
+      of course level file repositories showing up in add file dialog
