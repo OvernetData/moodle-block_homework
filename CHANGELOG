@@ -1,4 +1,7 @@
 1.0.24
+    * Feature #3722 - Default assignment settings in Moodle used for settings
+      for alwaysshowdescription, submissiondrafts, requiresubmissionstatement,
+      sendnotifications, sendlatenotifications, sendstudentnotifications
     * Standards fix #8 - language file simplified
     * Standards fix #6 - namespace block_homework\edulink renamed to 
       block_homework\local\edulink and class files moved to edulink_classes
