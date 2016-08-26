@@ -213,10 +213,28 @@ abstract class htmlBaseTextInput extends htmlBaseInput {
 
 class htmlTextInput extends htmlBaseTextInput {
 
-    public function __construct($id, $name, $value, $title = null) {
+    protected $autofilloptions = null;
+    
+    public function __construct($id, $name, $value, $title = null, $autofilloptions = null) {
         parent::__construct('text', $id, $name, $value, $title);
+        $this->autofilloptions = $autofilloptions;
     }
 
+    public function get_html() {
+        if ($this->autofilloptions == null) {
+            return parent::get_html();
+        } else {
+            $listid = $this->get_property('name') . '_optionslist';
+            $html = '<input' . $this->get_properties() .
+                    ' value="' . htmlspecialchars($this->value) . '"' .
+                    $this->get_class() . ' list="' . $listid . '" autocomplete="off"><datalist id="' . $listid . '">';
+            foreach($this->autofilloptions as $option) {
+                $html .= '<option>' . $option . '</option>';
+            }
+            $html .= '</datalist>';
+            return $html;
+        }
+    }
 }
 
 class htmlPasswordInput extends htmlBaseTextInput {

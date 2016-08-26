@@ -1,3 +1,8 @@
+1.0.25
+    * Feature #3724 - Set Homework - Subject field now includes dropdown button
+      for previously used subject names (ordered by descending popularity, needs
+      browser that supports HTML5)
+
 1.0.24
     * Feature #3722 - Default assignment settings in Moodle used for settings
       for alwaysshowdescription, submissiondrafts, requiresubmissionstatement,

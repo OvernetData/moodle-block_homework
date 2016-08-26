@@ -327,11 +327,17 @@ class block_homework_set_page extends e\block_homework_form_page_base {
         $form[$basicstab]['addfiles'] = array('type' => 'static', 'prompt' => $this->get_str('addfiles'), 'value' => $fileuploader);
 
         $subject = ($this->editingcmid == 0) ? '' : $this->assignment->subject;
+        $subjectoptions = array();
         if (($this->edulinkpresent) && ($subject == '')) {
             $subject = HomeworkAccess::get_subject_for_course($this->courseid);
         }
-        $form[$basicstab]['subject'] = array('prompt' => $this->get_str('subject'), 'type' => 'text', 'size' => 50,
-            'value' => $subject, 'required' => true);
+        $popularsubjects = $DB->get_records_sql('SELECT subject, COUNT(*) AS total FROM {block_homework_assignment} ' .
+                'GROUP BY subject ORDER BY total ASC');
+        foreach($popularsubjects as $sub) {
+            $subjectoptions[] = $sub->subject;
+        }
+        $form[$basicstab]['subject'] = array('prompt' => $this->get_str('subject'), 'type' => 'text',
+            'autofilloptions' => $subjectoptions, 'size' => 50, 'value' => $subject, 'required' => true);
 
         // Groups on the specified course.
         $coursegroups = array();

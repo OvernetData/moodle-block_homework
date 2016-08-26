@@ -269,7 +269,8 @@ abstract class block_homework_form_page_base extends block_homework_moodle_page_
                     break;
 
                 case 'text' :
-                    $control = new htmlTextInput($settingname, $settingname, $value, $title);
+                    $autofilloptions = isset($settingdetails["autofilloptions"]) ? $settingdetails["autofilloptions"] : null;
+                    $control = new htmlTextInput($settingname, $settingname, $value, $title, $autofilloptions);
                     if (isset($settingdetails["size"])) {
                         $control->set_size($settingdetails["size"]);
                     }
