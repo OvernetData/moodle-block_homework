@@ -330,12 +330,17 @@ class block_homework_set_page extends e\block_homework_form_page_base {
         $subjectoptions = array();
         if (($this->edulinkpresent) && ($subject == '')) {
             $subject = HomeworkAccess::get_subject_for_course($this->courseid);
+            if (method_exists('HomeworkAccess','get_subjects')) {
+                $subjectoptions = HomeworkAccess::get_subjects();
+            }
         }
-        $popularsubjects = $DB->get_records_sql('SELECT subject, COUNT(*) AS total FROM {block_homework_assignment} ' .
-                'GROUP BY subject ORDER BY total ASC');
+        $popularsubjects = $DB->get_records_sql('SELECT DISTINCT subject FROM {block_homework_assignment} ORDER BY subject');
         foreach($popularsubjects as $sub) {
-            $subjectoptions[] = $sub->subject;
+            if (!in_array($sub->subject,$subjectoptions)) {
+                $subjectoptions[] = $sub->subject;
+            }
         }
+        asort($subjectoptions);
         $form[$basicstab]['subject'] = array('prompt' => $this->get_str('subject'), 'type' => 'text',
             'autofilloptions' => $subjectoptions, 'size' => 50, 'value' => $subject, 'required' => true);
 
