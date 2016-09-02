@@ -103,6 +103,7 @@ class block_homework_mark_page extends e\block_homework_form_page_base {
 
         $table = new e\htmlTable('ond_assign_marking');
         $table->add_header(new e\htmlTableHeader(null, null, $this->get_str('name')));
+        $table->add_header(new e\htmlTableHeader(null, null, $this->get_str('group')));
         $table->add_header(new e\htmlTableHeader(null, null, $this->get_str('status')));
         if (($this->assignment->textsubmissionenabled) || ($this->assignment->filesubmissionenabled)) {
             $table->add_header(new e\htmlTableHeader(null, null, $this->get_str('submission')));
@@ -116,6 +117,10 @@ class block_homework_mark_page extends e\block_homework_form_page_base {
         $notsubmitted = $this->get_str('notsubmitted');
         $users = block_homework_moodle_utils::get_assignment_participants_and_statuses($this->cmid);
         $learners = array();
+        
+        // one query instead of repeated use of groups_get_group_name
+        $allgroupnames = block_homework_moodle_utils::get_groups();
+        
         foreach ($users as $user) {
             $learners[] = $user->userid;
             $table->add_row();
@@ -125,6 +130,21 @@ class block_homework_mark_page extends e\block_homework_form_page_base {
             $namecell = new e\htmlTableCell(null, null, $userlink->get_html());
             $namecell->set_property('data-sort', $user->lastname . ' ' . $user->firstname);
             $table->add_cell($namecell);
+            $groups = groups_get_user_groups($this->assignment->courseid, $user->userid);
+            $allgroups = $groups['0'];
+            $groupnames = '';
+            foreach($allgroups as $groupid) {
+                $groupnames .= ($groupnames == '') ? '' : ', ';
+                if (isset($allgroupnames[$groupid])) {
+                    $groupnames .= $allgroupnames[$groupid];
+                } else {
+                    $groupname = groups_get_group_name($groupid);
+                    $allgroupnames[$groupid] = $groupname;
+                    $groupnames .= $groupname;
+                }
+            }
+            $groupscell = new e\htmlTableCell(null, null, $groupnames);
+            $table->add_cell($groupscell);
             $table->add_cell(new e\htmlTableCell(null, null, $user->status));
 
             if (($this->assignment->textsubmissionenabled) || ($this->assignment->filesubmissionenabled)) {
