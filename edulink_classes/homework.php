@@ -87,6 +87,9 @@ class block_homework_utils {
         }
         ksort($orderedhomework);
         foreach ($orderedhomework as $item) {
+            if (($usertype == "employee") && ($item->userid != $userid) && (!is_siteadmin())) {
+                continue;
+            }
             $context = context_module::instance($item->id);
             $userisparticipant = block_homework_moodle_utils::user_is_assignment_participant($userid, $item->id);
             if ((!has_capability('moodle/course:manageactivities', $context)) && (!$userisparticipant)) {
