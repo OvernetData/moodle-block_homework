@@ -79,14 +79,18 @@ class block_homework_view_reports_page extends e\block_homework_form_page_base {
 
         $useroptions = block_homework_moodle_utils::get_teacher_users();
 
+        $year = date('Y');
+        if (date('m') >= 9) {
+            $year++;
+        }
         $form[$this->get_str('staffusage')] = array(
             'course' => array('type' => 'hidden', 'value' => $this->courseid),
             'sesskey' => array('type' => 'hidden', 'value' => sesskey()),
             'user' => array('type' => 'select', 'prompt' => $this->get_str('staffmember'), 'options' => $useroptions,
                 'value' => $USER->id),
-            'from_staff' => array('type' => 'date', 'prompt' => $this->get_str('from'), 'default' => (date('Y') - 1) . '-09-01',
+            'from_staff' => array('type' => 'date', 'prompt' => $this->get_str('from'), 'default' => ($year - 1) . '-09-01',
                 'required' => true, 'include_tomorrow_button' => false, 'include_next_week_button' => false),
-            'to_staff' => array('type' => 'date', 'prompt' => $this->get_str('to'), 'default' => date('Y-08-31'),
+            'to_staff' => array('type' => 'date', 'prompt' => $this->get_str('to'), 'default' => date($year . '-08-31'),
                 'required' => true, 'include_tomorrow_button' => false, 'include_next_week_button' => false),
             'tab1' => array('type' => 'static', 'content' => $stafftab)
         );
@@ -105,10 +109,10 @@ class block_homework_view_reports_page extends e\block_homework_form_page_base {
             $form[$grouptab] = array(
                 'group' => array('type' => 'select', 'prompt' => $this->get_str('group'), 'options' => $groupoptions),
                 'from_group' => array('type' => 'date', 'prompt' => $this->get_str('from'),
-                    'default' => (date('Y') - 1) . '-09-01', 'required' => true, 'include_tomorrow_button' => false,
+                    'default' => ($year - 1) . '-09-01', 'required' => true, 'include_tomorrow_button' => false,
                     'include_next_week_button' => false),
                 'to_group' => array('type' => 'date', 'prompt' => $this->get_str('to'),
-                    'default' => date('Y-08-31'), 'required' => true, 'include_tomorrow_button' => false,
+                    'default' => date($year . '-08-31'), 'required' => true, 'include_tomorrow_button' => false,
                     'include_next_week_button' => false),
                 'tab2' => array('type' => 'static', 'content' => $grouptablehtml)
             );
@@ -123,10 +127,10 @@ class block_homework_view_reports_page extends e\block_homework_form_page_base {
         $form[$this->get_str('studentgrades')] = array(
             'student' => array('type' => 'select', 'prompt' => $this->get_str('student'), 'options' => $studentoptions),
             'from_student' => array('type' => 'date', 'prompt' => $this->get_str('from'),
-                'default' => (date('Y') - 1) . '-09-01', 'required' => true, 'include_tomorrow_button' => false,
+                'default' => ($year - 1) . '-09-01', 'required' => true, 'include_tomorrow_button' => false,
                 'include_next_week_button' => false),
             'to_student' => array('type' => 'date', 'prompt' => $this->get_str('to'),
-                'default' => date('Y-08-31'), 'required' => true, 'include_tomorrow_button' => false,
+                'default' => date($year . '-08-31'), 'required' => true, 'include_tomorrow_button' => false,
                 'include_next_week_button' => false),
             'tab3' => array('type' => 'static', 'content' => $studenttab)
         );
@@ -141,9 +145,9 @@ class block_homework_view_reports_page extends e\block_homework_form_page_base {
                     $this->get_str('loadingdata') . '</div><div id="staffstatistics_loaded"></div></div>';
         $form[$this->get_str('subjectsandstaff')] = array(
             'from_school' => array('type' => 'date', 'prompt' => $this->get_str('from'),
-                'default' => (date('Y') - 1) . '-09-01', 'required' => true, 'include_tomorrow_button' => false,
+                'default' => ($year - 1) . '-09-01', 'required' => true, 'include_tomorrow_button' => false,
                 'include_next_week_button' => false),
-            'to_school' => array('type' => 'date', 'prompt' => $this->get_str('to'), 'default' => date('Y-08-31'),
+            'to_school' => array('type' => 'date', 'prompt' => $this->get_str('to'), 'default' => date($year . '-08-31'),
                 'required' => true, 'include_tomorrow_button' => false, 'include_next_week_button' => false),
             'tab4' => array('type' => 'static', 'content' => $schooltab)
         );
