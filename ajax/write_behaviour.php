@@ -43,6 +43,7 @@ $staffid = optional_param($action . 'reporter', 0, PARAM_INT);
 $typeid = optional_param($action . 'type', 0, PARAM_INT);
 $activityid = optional_param($action . 'activity', 0, PARAM_INT);
 $statusid = optional_param($action . 'status', 0, PARAM_INT);
+$actiontakenid = optional_param($action . 'action', 0, PARAM_INT);
 $comments = optional_param($action . 'comments', '', PARAM_RAW);
 $points = optional_param($action . 'points', 0, PARAM_INT);
 
@@ -71,7 +72,8 @@ if ((($action != "achievement") && ($action != "behaviour")) || ($cmid == 0) || 
                 $result = array('success' => false, 'error' => 'Behaviour record already created for this assignment',
                     'name' => $learnername);
             } else {
-                $newid = HomeworkAccess::write_behaviour($staffid, $learnerid, $typeid, $activityid, $statusid, $comments, $points);
+                $newid = HomeworkAccess::write_behaviour($staffid, $learnerid, $typeid, $activityid, $statusid, $comments, $points,
+                                                         $actiontakenid);
             }
         }
         if ($result == null) {

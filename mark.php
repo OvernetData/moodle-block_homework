@@ -117,10 +117,10 @@ class block_homework_mark_page extends e\block_homework_form_page_base {
         $notsubmitted = $this->get_str('notsubmitted');
         $users = block_homework_moodle_utils::get_assignment_participants_and_statuses($this->cmid);
         $learners = array();
-        
-        // one query instead of repeated use of groups_get_group_name
-        $allgroupnames = block_homework_moodle_utils::get_groups();
-        
+
+        // One query instead of repeated use of groups_get_group_name.
+        $allgroupnames = block_homework_moodle_utils::get_groups($this->courseid);
+
         foreach ($users as $user) {
             $learners[] = $user->userid;
             $table->add_row();
@@ -133,7 +133,7 @@ class block_homework_mark_page extends e\block_homework_form_page_base {
             $groups = groups_get_user_groups($this->assignment->courseid, $user->userid);
             $allgroups = $groups['0'];
             $groupnames = '';
-            foreach($allgroups as $groupid) {
+            foreach ($allgroups as $groupid) {
                 $groupnames .= ($groupnames == '') ? '' : ', ';
                 if (isset($allgroupnames[$groupid])) {
                     $groupnames .= $allgroupnames[$groupid];
@@ -282,6 +282,15 @@ class block_homework_mark_page extends e\block_homework_form_page_base {
                 $behaviourreporter = array('prompt' => $this->get_str('behaviourreporter'), 'type' => 'select',
                     'options' => $staff);
             }
+            if (method_exists('HomeworkAccess', 'behaviour_actions_taken')) {
+                $behaviouractionoptions = array(0 => $this->get_str('notselected'));
+                $attypes = HomeworkAccess::behaviour_actions_taken();
+                foreach ($attypes as $type) {
+                    $behaviouractionoptions[$type->id] = $type->description;
+                }
+            } else {
+                $behaviouractionoptions = array(0 => $this->get_str('notselectedintegratorversionrequired', '6.2.145'));
+            }
             $form[$behavetab]['bulkbehaviour'] = array('type' => 'switch', 'prompt' => $this->get_str('bulkbehaviourwriteback'),
                 'default' => false,
                 'subgroup_if_on' => array(
@@ -291,6 +300,8 @@ class block_homework_mark_page extends e\block_homework_form_page_base {
                         'options' => $behaviouractivityoptions, 'default' => $defaultactivitytype),
                     'behaviourstatus' => array('prompt' => $this->get_str('behaviourstatus'), 'type' => 'select',
                         'options' => $behaviourstatusoptions),
+                    'behaviouraction' => array('prompt' => $this->get_str('behaviouractiontaken'), 'type' => 'select',
+                        'options' => $behaviouractionoptions),
                     'behaviourcomments' => array('prompt' => $this->get_str('behaviourcomments'), 'type' => 'memo',
                         'columns' => 80, 'rows' => 5, 'required' => true),
                     'behaviourpoints' => array('prompt' => $this->get_str('behaviourpoints'), 'type' => 'int', 'value' => 0,

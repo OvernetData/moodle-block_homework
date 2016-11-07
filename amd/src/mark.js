@@ -160,6 +160,7 @@ define(['jquery',
                             behaviourtype: $('#behaviourtype').val(),
                             behaviouractivity: $('#behaviouractivity').val(),
                             behaviourstatus: $('#behaviourstatus').val(),
+                            behaviouraction: $('#behaviouraction').val(),
                             behaviourcomments: $('#behaviourcomments').val(),
                             behaviourpoints: $('#behaviourpoints').val(),
                             behaviourreporter: $('#behaviourreporter').val()

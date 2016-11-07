@@ -59,7 +59,7 @@ class ajaxgen_reports_group extends ajaxgen_base {
              * 3. fill in grid
              */
 
-            $assignments = block_homework_moodle_utils::get_assignments_for_group($course, $group, $from, $to);
+            $assignments = block_homework_moodle_utils::get_assignments_for_group_or_user($course, $group, 0, $from, $to);
             if (!empty($assignments)) {
 
                 // First get rid of any assignments that aren't for any of our group members.

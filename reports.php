@@ -54,6 +54,7 @@ class block_homework_view_reports_page extends e\block_homework_form_page_base {
     public function get_content() {
         $this->set_scripts();
         $this->set_stylesheets();
+
         $usertype = block_homework_moodle_utils::get_user_type($this->userid);
         if ($usertype == "employee") {
             $form = $this->get_form_settings();
@@ -65,7 +66,7 @@ class block_homework_view_reports_page extends e\block_homework_form_page_base {
     }
 
     protected function get_form_settings() {
-        global $USER;
+        global $USER, $CFG;
 
         $form = array();
 
@@ -77,7 +78,9 @@ class block_homework_view_reports_page extends e\block_homework_form_page_base {
                 . '<canvas id="mychart3" width="' . $this->chartwidth . '" height="' . $this->chartheight . '"></canvas></div>'
                 . '</div>';
 
-        $useroptions = block_homework_moodle_utils::get_teacher_users();
+        $loguseroptions = block_homework_moodle_utils::get_teacher_users(true);
+        $useroptions = $loguseroptions;
+        unset($useroptions[0]);
 
         $year = date('Y');
         if (date('m') >= 9) {
@@ -95,7 +98,7 @@ class block_homework_view_reports_page extends e\block_homework_form_page_base {
             'tab1' => array('type' => 'static', 'content' => $stafftab)
         );
 
-        $groupoptions = block_homework_moodle_utils::get_groups();
+        $groupoptions = block_homework_moodle_utils::get_groups($this->courseid);
 
         $grouptab = $this->get_str('groupgrades');
         if (empty($groupoptions)) {
@@ -151,6 +154,12 @@ class block_homework_view_reports_page extends e\block_homework_form_page_base {
                 'required' => true, 'include_tomorrow_button' => false, 'include_next_week_button' => false),
             'tab4' => array('type' => 'static', 'content' => $schooltab)
         );
+
+        /* extra tab specific to Homework block extended by proprietary availability plugin */
+        $extrareports = $CFG->dirroot . '/availability/condition/user/homework/reports.php';
+        if (file_exists($extrareports)) {
+            require_once($extrareports);
+        }
 
         return $form;
     }

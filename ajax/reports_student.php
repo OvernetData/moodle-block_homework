@@ -57,7 +57,7 @@ class ajaxgen_reports_student extends ajaxgen_base {
          * 3. fill in grid
          */
 
-        $assignments = block_homework_moodle_utils::get_assignments_for_group($course, 0, $from, $to);
+        $assignments = block_homework_moodle_utils::get_assignments_for_group_or_user($course, 0, $student, $from, $to);
         if (!empty($assignments)) {
             $table = new e\htmlTable('studentgrades');
             $table->add_header(new e\htmlTableHeader('', '', $this->get_str('issued')));

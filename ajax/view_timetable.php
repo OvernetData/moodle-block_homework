@@ -95,7 +95,13 @@ class ajaxgen_view_timetable extends ajaxgen_base {
         foreach ($courses as $course) {
             // Get ALL assignment activities on the course regardless of whether the user is a participant or creator.
             // TODO - replace false with !$this->isteacher?
-            $homeworkactivities = block_homework_utils::get_homework_for_course($course->id, $displayuserid, false, 366);
+            $maxdays = get_config('block_homework', 'view_all_max_days');
+            if ($maxdays < 40) {
+                $maxdays = 40;
+            } else if ($maxdays > 366) {
+                $maxdays = 366;
+            }
+            $homeworkactivities = block_homework_utils::get_homework_for_course($course->id, $displayuserid, false, $maxdays);
             foreach ($homeworkactivities as $item) {
                 $context = context_module::instance($item->id);
                 // Skip this one if the user is not an activity creator (teacher) or participant in the specific
@@ -115,7 +121,8 @@ class ajaxgen_view_timetable extends ajaxgen_base {
                         $markcell = new e\htmlTableCell(null, null, $marklink->get_html());
                         $table->add_cell($markcell);
                     } else {
-                        $datecell = new e\htmlTableCell(null, "ond_cell_date", block_homework_utils::format_date($item->availabledate));
+                        $datecell = new e\htmlTableCell(null, "ond_cell_date",
+                            block_homework_utils::format_date($item->availabledate));
                         $datecell->set_property('data-order', $item->availabledate);
                         $table->add_cell($datecell);
                     }
@@ -176,7 +183,8 @@ class ajaxgen_view_timetable extends ajaxgen_base {
                         $dueclass = ' ond_overdue';
                     }
                 }
-                $duedatecell = new e\htmlTableCell(null, "ond_cell_date" . $dueclass, block_homework_utils::format_date($item->duedate));
+                $duedatecell = new e\htmlTableCell(null, "ond_cell_date" . $dueclass,
+                    block_homework_utils::format_date($item->duedate));
                 $duedatecell->set_property('data-order', $item->duedate);
                 $table->add_cell($duedatecell);
 
@@ -205,6 +213,7 @@ class ajaxgen_view_timetable extends ajaxgen_base {
             $label = new e\htmlLabel('label-info', $this->get_str("notimetable"));
             $htmltimetable = $label->get_html();
         } else {
+            $htmltimetable = '';
             $table = new e\htmlTable('ond_homework_timetable');
             $table->add_header(new e\htmlTableHeader(null, null, "Day"));
             $periods = reset($timetable)["periods"];
@@ -251,6 +260,15 @@ class ajaxgen_view_timetable extends ajaxgen_base {
                             $homework = $homeworkcache[$period->courseid];
                             foreach ($homework as $activity) {
                                 if ($activity->availabledate <= $today) {
+                                    // Check if group availability condition excludes the group for this period.
+                                    // This does run a risk of hiding homework set for form groups as the timetable periods are
+                                    // limited to teaching groups.
+                                    if (!empty($period->groupid)) {
+                                        if (!block_homework_moodle_utils::is_group_or_user_in_availability_json(
+                                                $activity->availability, $period->groupid)) {
+                                            continue;
+                                        }
+                                    }
                                     if ($activity->duedate == $today) {
                                         $hasduehomework++;
                                     } else if ($activity->duedate >= $today) {
@@ -324,7 +342,7 @@ class ajaxgen_view_timetable extends ajaxgen_base {
             foreach ($periodheaders as $ph) {
                 $table->add_header(new e\htmlTableHeader(null, null, $ph));
             }
-            $htmltimetable = $table->get_html();
+            $htmltimetable .= $table->get_html();
         }
 
         $output = array('htmllist' => $htmllist, 'htmltimetable' => $htmltimetable);
@@ -333,6 +351,6 @@ class ajaxgen_view_timetable extends ajaxgen_base {
 
 }
 
-require_login();
-require_sesskey();
+//require_login();
+//require_sesskey();
 ajaxgen_view_timetable::factory();

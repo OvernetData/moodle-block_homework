@@ -26,5 +26,9 @@ $observers = array(
     array(
         'eventname' => '\core\event\course_module_deleted',
         'callback' => '\block_homework\observers::course_module_deleted'
-    )
+    ),
+    array(
+        'eventname' => '\core\event\message_viewed',
+        'callback' => '\block_homework\observers::message_viewed'
+    ),
 );

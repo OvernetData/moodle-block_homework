@@ -64,6 +64,8 @@ $string['communicatormissing'] = 'This feature is only available if you have a l
 
 $string['basics'] = 'Basics';
 $string['courselabel_help'] = 'This is the course the Homework Assignment Activity will be added to. Only the students enrolled on this course will have access to the activity.';
+$string['section'] = 'Section';
+$string['section_help'] = 'The section or topic within the Course that the Homework Assignment Activity will be added to.';
 $string['name'] = 'Name';
 $string['name_help'] = 'The name will be visible on the Course, Homework Block and Moodle Gradebook';
 $string['activity'] = 'Activity';
@@ -74,6 +76,10 @@ $string['restricttogroups'] = 'Restrict to groups';
 $string['groups_help'] = 'If you have groups on your course the groups selected here will be able to see the activity whereas other enrolled students will not (this can be useful for differentiation)';
 $string['groups-none_help'] = 'If you have groups on your course the groups selected here will be able to see the activity whereas other enrolled students will not (this can be useful for differentiation)';
 $string['nogroupsoncourse'] = 'No groups on course, homework will be set for for all course participants';
+$string['restricttousers'] = 'Restrict to users';
+$string['users_help'] = 'If you have users on your course the users selected here will be able to see the activity whereas other enrolled students will not (this can be useful for differentiation)';
+$string['users-none_help'] = 'If you have users on your course the users selected here will be able to see the activity whereas other enrolled students will not (this can be useful for differentiation)';
+$string['nousersoncourse'] = 'No users on course, homework will be set for for all course participants';
 $string['enableavailabilityoff'] = 'Enable restricted access is turned off in Moodle configuration, homework will be set for all course participants';
 $string['subject_help'] = 'This is used in the reporting section of this block';
 
@@ -108,23 +114,38 @@ $string['duration_help'] = 'The expected duration';
 $string['notifyparents'] = 'Notify parents';
 $string['notifyparents_help'] = 'Email parents to let them know the homework assignment has been set';
 $string['notesforparentssubject'] = 'Subject line';
-$string['note_to_parents_subject_help'] = 'Subject of the notification email - you can use the following fields within your text: [parent_title], [parent_lastname], [parent_firstname], [child_name], [child_lastname], [child_firstname], [assignment_name], [subject], [assignment_due_date], [assignment_duration], [assignment_link]';
+$string['note_to_parents_subject_help'] = 'Subject of the notification email - you can use the following fields within your text: [parent_title], [parent_lastname], [parent_firstname], [child_name], [child_lastname], [child_firstname], [assignment_name], [assignment_subject], [assignment_due_date], [assignment_duration], [assignment_link]';
 $string['notesforparents'] = 'Message body';
-$string['note_to_parents_help'] = 'Body of the notification email - you can use the following fields within your text: [parent_title], [parent_lastname], [parent_firstname], [child_name], [child_lastname], [child_firstname], [assignment_name], [subject], [assignment_due_date], [assignment_duration], [assignment_link]';
+$string['note_to_parents_help'] = 'Body of the notification email - you can use the following fields within your text: [parent_title], [parent_lastname], [parent_firstname], [child_name], [child_lastname], [child_firstname], [assignment_name], [assignment_subject], [assignment_due_date], [assignment_duration], [assignment_link]';
+$string['notifylearners'] = 'Notify learners';
+$string['notifylearners_help'] = 'Email learners to let them know the homework assignment has been set';
+$string['notesforlearnerssubject'] = 'Subject line';
+$string['note_to_learners_subject_help'] = 'Subject of the notification email - you can use the following fields within your text: [learner_name], [learner_lastname], [learner_firstname], [assignment_name], [assignment_subject], [assignment_due_date], [assignment_duration]';
+$string['notesforlearners'] = 'Message body';
+$string['note_to_learners_help'] = 'Body of the notification email - you can use the following fields within your text: [learner_name], [learner_lastname], [learner_firstname], [assignment_name], [assignment_subject], [assignment_due_date], [assignment_duration], [assignment_link]';
 $string['addfiles'] = 'Add file(s)';
 $string['addfiles_help'] = 'Upload any file(s) relating to the homework assignment';
 $string['selectcourse'] = 'Select Course';
 $string['selectcourse_help'] = 'This is the course the Homework Assignment Activity will be added to. Only the students enrolled on this course will have access to the activity.';
 $string['on'] = 'On';
 $string['off'] = 'Off';
-$string['sethomeworkforall'] = 'Set homework for all course participants';
+$string['nogrouprestriction'] = 'No restriction by group(s)';
+$string['nouserrestriction'] = 'No restriction by user(s)';
+$string['allxselected'] = 'All {0} selected';
 $string['copyof_'] = 'Copy of ';
 $string['duedateinvalid'] = 'Due date must be after available date';
 
-$string['notifyparentsmessage'] = "Dear [parent_title] [parent_lastname]\n\nThe following piece of [assignment_subject] homework has been set for [child_name]:\n\n[assignment_name]\n\nIt is due on [assignment_due_date] and expected to take approximately [assignment_duration].\n\nThe assignment can be viewed here: [assignment_link]";
+$string['notifyparentsmessage'] = '<p>Dear [parent_title] [parent_lastname]</p><p>The following piece of <strong>[assignment_subject]</strong> homework has been set for <strong>[child_name]</strong>:</p><p><strong>[assignment_name]</strong></p><p>It is due on <strong>[assignment_due_date]</strong> and expected to take approximately <strong>[assignment_duration]</strong>.</p><p>The assignment can be viewed here: <a href="[assignment_link]">[assignment_name]</a></p>';
 $string['notifyparentsmessagesubject'] = '[child_firstname] has new homework';
+$string['notifylearnersmessage'] = '<p>Dear [learner_firstname]</p><p>The following <strong>[assignment_subject]</strong> assignment has been set for you:</p><p><strong>[assignment_name]</strong></p><p>It is due on <strong>[assignment_due_date]</strong> and expected to take approximately <strong>[assignment_duration]</strong>.</p><p>The assignment can be viewed here: <a href="[assignment_link]">[assignment_name]</a></p>';
+$string['notifylearnersmessagesubject'] = 'You have a new assignment';
+$string['durationnotspecified'] = '(duration not specified)';
 $string['parentalnotificationerror'] = 'Error trying to notify parents: {$a}';
 $string['emailerrors'] = '{$a->count} error(s), example error message: {$a->example}';
+$string['messageprovider:new_assignment'] = 'Notification of new homework assignments';
+$string['messagesendfailed'] = 'Sending Moodle message failed';
+$string['notselected'] = '[Not selected]';
+$string['notselectedintegratorversionrequired'] = '[Not selected - MIS Integrator version {$a} or above required]';
 
 // View homework screen.
 $string['oncourse'] = ' ({$a} course)';
@@ -221,6 +242,7 @@ $string['behaviourreporter'] = 'Reported by';
 $string['behaviourtype'] = 'Behaviour type';
 $string['behaviouractivity'] = 'Activity';
 $string['behaviourstatus'] = 'Status';
+$string['behaviouractiontaken'] = 'Action taken';
 $string['behaviourcomments'] = 'Comments';
 $string['behaviourpoints'] = 'Points';
 
@@ -250,6 +272,8 @@ $string['staffstatistics'] = 'Staff Statistics';
 $string['notspecified'] = 'Not specified';
 $string['nottracked'] = 'Not tracked';
 $string['nottrackedfull'] = 'Not tracked (created outside of Homework block)';
+$string['notificationslog'] = 'Notifications Log';
+$string['assignmentnotifications'] = 'Assignment Notifications';
 
 // Common to all reports.
 $string['invaliddatesupplied'] = 'Invalid date supplied';
@@ -273,6 +297,13 @@ $string['invalidstudentsupplied'] = 'Invalid student supplied';
 $string['issued'] = 'Issued';
 $string['due'] = 'Due';
 $string['feedback'] = 'Feedback';
+// Notification log reports.
+$string['anystaffmember'] = '(Any staff member)';
+$string['createdby'] = 'Created by';
+$string['email'] = 'Email';
+$string['sent'] = 'Sent';
+$string['read'] = 'Read';
+$string['nonotificationsfound'] = 'No notifications found';
 
 // Datatables js.
 $string['export'] = 'Export';
@@ -304,5 +335,33 @@ $string['graded'] = 'Graded';
 // Misc.
 $string['ok'] = 'OK';
 $string['cancel'] = 'Cancel';
+$string['on'] = 'On';
+$string['off'] = 'Off';
 $string['save'] = 'Save';
 $string['failedtofetchdata'] = 'Failed to fetch data';
+
+// Settings.
+$string['notifycreator'] = 'Notify assignment creator of new assignments';
+$string['notifycreator_help'] = 'Send a Moodle message to the assignment creator whenever they create a new assignment';
+$string['notifyother'] = 'Notify third party';
+$string['notifyother_help'] = 'Send an email to a third party whenever a new assignment is created';
+$string['notifyotheremail'] = 'Third party email address';
+$string['notifyotheremail_help'] = 'Enter the third party\'s email address here';
+$string['newassignmentnotificationsubject'] = 'New assignment notification subject';
+$string['newassignmentnotificationsubject_help'] = 'The subject line of the message to send to assignment creator or third party when a new assignment is created';
+$string['newassignmentnotificationsubjectdefault'] = "New assignment created in [course_name]";
+$string['newassignmentnotificationmessage'] = 'New assignment notification message';
+$string['newassignmentnotificationmessage_help'] = 'The message to send to assignment creator or third party when a new assignment is created';
+$string['newassignmentnotificationmessagedefault'] = "The following new assignment has been created:\n\n<strong><a href=\"[assignment_link]\">[assignment_name]</a></strong> in <strong>[course_name]</strong>";
+$string['maxageviewall'] = 'Max days to show assignments for on view all/marking';
+$string['maxageviewall_help'] = 'The number of days that assignments should be listed in the view all and marking screens';
+$string['maxageemployee'] = 'Max days to show overdue assignments for (employees)';
+$string['maxageemployee_help'] = 'The number of days that overdue assignments should be listed in the block (teacher/admin view)';
+$string['maxageother'] = 'Max days to show overdue assignments for (learners/parents)';
+$string['maxageother_help'] = 'The number of days that overdue assignments should be listed in the block (learner/parent view)';
+$string['defaultnotifyparents'] = 'Default setting for Notify Parents';
+$string['defaultnotifyparents_help'] = 'Whether the Notify Parents setting is on or off by default';
+$string['submissionsdefault'] = 'Default for Submissions';
+$string['submissionsdefault_help'] = 'Default for Submissions field when creating new assignment';
+$string['lognotifications'] = 'Log notifications';
+$string['lognotifications_help'] = 'Log notification emails and include the log on the reports screen';

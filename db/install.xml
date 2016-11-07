@@ -12,8 +12,13 @@
         <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="userid" NEXT="groupids"/>
         <FIELD NAME="duration" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="coursemoduleid" NEXT="notifyparents"/>
         <FIELD NAME="notifyparents" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="duration" NEXT="notesforparentssubject"/>
-        <FIELD NAME="notesforparentssubject" TYPE="char" LENGTH="255" NOTNULL="false" PREVIOUS="notifyparents" NEXT="notesforparents"/>
-        <FIELD NAME="notesforparents" TYPE="text" NOTNULL="false" PREVIOUS="notesforparentssubject"/>
+        <FIELD NAME="notesforparentssubject" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="notifyparents" NEXT="notesforparents"/>
+        <FIELD NAME="notesforparents" TYPE="text" NOTNULL="false"  SEQUENCE="false" PREVIOUS="notesforparentssubject" NEXT="notifylearners"/>
+        <FIELD NAME="notifylearners" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="notesforparents" NEXT="notesforlearnerssubject"/>
+        <FIELD NAME="notesforlearnerssubject" TYPE="char" LENGTH="255" NOTNULL="false"  SEQUENCE="false" PREVIOUS="notifylearners" NEXT="notesforlearners"/>
+        <FIELD NAME="notesforlearners" TYPE="text" NOTNULL="false"  SEQUENCE="false" PREVIOUS="notesforlearnerssubject" NEXT="notifyother"/>
+        <FIELD NAME="notifyother" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="notesforlearners" NEXT="notifyotheremail"/>
+        <FIELD NAME="notifyotheremail" TYPE="char" LENGTH="255" NOTNULL="false"  SEQUENCE="false" PREVIOUS="notifyother"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -30,9 +35,9 @@
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="coursemoduleid" NEXT="completed"/>
         <FIELD NAME="completed" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="userid" NEXT="achievementid"/>
         <FIELD NAME="achievementid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="userid" NEXT="achievementcomments"/>
-        <FIELD NAME="achievementcomments" TYPE="text" NOTNULL="false" PREVIOUS="achievementid" NEXT="behaviourid"/>
+        <FIELD NAME="achievementcomments" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="achievementid" NEXT="behaviourid"/>
         <FIELD NAME="behaviourid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="achievementcomments" NEXT="behaviourcomments"/>
-        <FIELD NAME="behaviourcomments" TYPE="text" NOTNULL="false" PREVIOUS="behaviourid"/>
+        <FIELD NAME="behaviourcomments" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="behaviourid"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -40,6 +45,23 @@
       <INDEXES>
         <INDEX NAME="ix_i_coursemoduleid" UNIQUE="false" FIELDS="coursemoduleid"/>
         <INDEX NAME="ix_i_userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="block_homework_notification" COMMENT="Table recording notifications about new activity assignments set by EduLink Homework block">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="coursemoduleid"/>
+        <FIELD NAME="coursemoduleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="recipientuserid"/>
+        <FIELD NAME="recipientuserid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="homeworkassignmentid" NEXT="recipientemail"/>
+        <FIELD NAME="recipientemail" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="recipientuserid" NEXT="created"/>
+        <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="recipientemail" NEXT="messageid"/>
+        <FIELD NAME="messageid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="created" NEXT="messagereadid"/>
+        <FIELD NAME="messagereadid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="messageid"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="ix_i_coursemoduleid" UNIQUE="false" FIELDS="coursemoduleid"/>
       </INDEXES>
     </TABLE>
   </TABLES>

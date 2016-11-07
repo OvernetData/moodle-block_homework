@@ -66,9 +66,17 @@ class ajaxgen_reports_staff extends ajaxgen_base {
         } while ($dateid < $yearto . $monthto);
 
         $stats = block_homework_utils::get_homework_statistics($from, $to, $course, $user);
+        $lastcourse = 0;
 
         $bygroup = array();
+        $groupsoncourse = array();
         foreach ($stats as $stat) {
+
+            if ($stat["courseid"] != $lastcourse) {
+                $lastcourse = $stat["courseid"];
+                $groupsoncourse = block_homework_moodle_utils::get_groups($lastcourse);
+            }
+
             $dateid = date('Ym', $stat["added"]);
             if (!isset($bymonth[$dateid])) {
                 $bymonth[$dateid] = 1;
@@ -83,20 +91,19 @@ class ajaxgen_reports_staff extends ajaxgen_base {
                 $stat["coursemoduleid"], $user);
 
             $a = json_decode($stat["availability"]);
-            // Only detangle availability structure if it's the simple 'any of these groups' variation.
-            $show = (isset($a->show) && ($a->show)) || ((isset($a->showc) && ($a->showc))) && (isset($a->op));
-            if ($show && ((($a->op == "&") && (count($a->c) == 1)) || ($a->op == "|")) ) {
-                foreach ($a->c as $condition) {
-                    if ($condition->type == 'group') {
-                        if (!isset($bygroup[$condition->id])) {
-                            $bygroup[$condition->id] = array('name' => groups_get_group_name($condition->id), 'count' => 0);
-                        }
-                        $bygroup[$condition->id]['count']++;
+            $nogroupsmatched = true;
+            foreach ($groupsoncourse as $groupid => $groupname) {
+                if (block_homework_moodle_utils::is_group_or_user_in_availability_json($a, $groupid, null, false)) {
+                    $nogroupsmatched = false;
+                    if (!isset($bygroup[$groupid])) {
+                        $bygroup[$groupid] = array('name' => $groupname, 'count' => 0);
                     }
+                    $bygroup[$groupid]['count']++;
                 }
-            } else {
+            }
+            if ($nogroupsmatched) {
                 if (!isset($bygroup[0])) {
-                    $bygroup[0] = array('name' => $stat["availability"], 'name2' => 'Unspecified', 'count' => 0);
+                    $bygroup[0] = array('name' => 'Unspecified', 'name2' => 'Unspecified', 'count' => 0);
                 }
                 $bygroup[0]['count']++;
             }
