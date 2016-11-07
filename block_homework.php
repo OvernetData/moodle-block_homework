@@ -119,17 +119,23 @@ class block_homework extends \block_list {
             $somehomeworkthisuser = false;
             $homeworkactivities = array();
             if ($this->usertype == "employee") {
-                $maxdaysage = 1;
+                $maxdaysage = get_config('block_homework', 'max_age_employee');
+                if (($maxdaysage < 1) || ($maxdaysage > 14)) {
+                    $maxdaysage = 1;
+                }
             } else {
-                $maxdaysage = 8;
+                $maxdaysage = get_config('block_homework', 'max_age_other');
+                if (($maxdaysage < 1) || ($maxdaysage > 14)) {
+                    $maxdaysage = 8;
+                }
             }
             foreach ($courses as $course) {
                 $homeworkactivities = array_merge($homeworkactivities,
-                                                block_homework_utils::get_homework_for_course($course->id, $userid, true, $maxdaysage));
+                    block_homework_utils::get_homework_for_course($course->id, $userid, true, $maxdaysage));
             }
             if (!empty($homeworkactivities)) {
                 $homeworkhtml = block_homework_utils::homework_items_for_block_list($homeworkactivities, $userid, $onfrontpage,
-                        $this->usertype);
+                    $this->usertype);
                 if (!empty($homeworkhtml)) {
                     $somehomework = true;
                     $somehomeworkthisuser = true;

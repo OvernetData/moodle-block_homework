@@ -63,11 +63,23 @@ define(['jquery',
             if ($('#groups').attr("multiple")) {
                 $('#groups').SumoSelect({
                     csvDispCount: 5,
-                    placeholder: strs.sethomeworkforall,
-                    selectAll: true
+                    placeholder: strs.nogrouprestriction,
+                    selectAll: true,
+                    captionFormatAllSelected: strs.allxselected,
+                    search: true
                 });
             }
             
+            if ($('#users').attr("multiple")) {
+                $('#users').SumoSelect({
+                    csvDispCount: 5,
+                    placeholder: strs.nouserrestriction,
+                    selectAll: true,
+                    captionFormatAllSelected: strs.allxselected,
+                    search: true
+                });
+            }
+
             new $.Zebra_Tooltips($('.tooltips'), {
                 'background_color': 'oldlace',
                 'color': 'black',

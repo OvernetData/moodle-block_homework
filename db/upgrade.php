@@ -34,14 +34,78 @@ function xmldb_block_homework_upgrade($oldversion = 0) {
             $dbman = $DB->get_manager();
             if ($dbman->table_exists('edulink_homework')) {
                 print '<p>Renaming edulink_homework table to block_homework_assignment</p>';
-                $table = new xmldb_table('edulink_homework');
-                $dbman->rename_table($table, 'block_homework_assignment');
+                $logtable = new xmldb_table('edulink_homework');
+                $dbman->rename_table($logtable, 'block_homework_assignment');
             }
             if ($dbman->table_exists('edulink_homework_items')) {
                 print '<p>Renaming edulink_homework_items table to block_homework_item</p>';
-                $table = new xmldb_table('edulink_homework_items');
-                $dbman->rename_table($table, 'block_homework_item');
+                $logtable = new xmldb_table('edulink_homework_items');
+                $dbman->rename_table($logtable, 'block_homework_item');
             }
+            $transaction->allow_commit();
+        } catch (Exception $e) {
+            $transaction->rollback($e);
+            $result = false;
+        }
+    }
+
+    if ($oldversion < 2016101300) {
+        $transaction = $DB->start_delegated_transaction();
+        try {
+            print '<h2>1.1.01</h2>';
+            $dbman = $DB->get_manager();
+            print '<p>Adding learner notification fields</p>';
+            $asstable = new xmldb_table('block_homework_assignment');
+            $newfields = array();
+            $newfields[] = new xmldb_field('notifylearners', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+            $newfields[] = new xmldb_field('notesforlearnerssubject', XMLDB_TYPE_CHAR, '255');
+            $newfields[] = new xmldb_field('notesforlearners', XMLDB_TYPE_TEXT);
+            $newfields[] = new xmldb_field('notifyother', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+            $newfields[] = new xmldb_field('notifyotheremail', XMLDB_TYPE_CHAR, '255');
+            foreach ($newfields as $field) {
+                if (!$dbman->field_exists($asstable, $field)) {
+                    $dbman->add_field($asstable, $field);
+                }
+            }
+            $logtable = new xmldb_table('block_homework_notification');
+            if (!$dbman->table_exists($logtable)) {
+                $logtable->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+                $logtable->add_field('coursemoduleid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+                $logtable->add_field('recipientuserid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+                $logtable->add_field('recipientemail', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+                $logtable->add_field('created', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+                $logtable->add_field('messageid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+                $logtable->add_field('messagereadid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+                $logtable->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+                $logtable->add_index('ix_i_coursemoduleid', XMLDB_INDEX_NOTUNIQUE, array('coursemoduleid'));
+                $dbman->create_table($logtable);
+            }
+
+            print '<p>Writing default configuration settings</p>';
+            set_config('max_age_view_all', 40, 'block_homework');
+            set_config('max_age_employee', 1, 'block_homework');
+            set_config('max_age_other', 8, 'block_homework');
+            set_config('submissions', 3, 'block_homework');
+            set_config('notify_creator', 0, 'block_homework');
+            set_config('notify_other', 0, 'block_homework');
+            set_config('new_assign_notification_subject',
+                    get_string('newassignmentnotificationsubjectdefault', 'block_homework'), 'block_homework');
+            set_config('new_assign_notification_message',
+                    get_string('newassignmentnotificationmessagedefault', 'block_homework'), 'block_homework');
+            set_config('log_notifications', 0, 'block_homework');
+            $transaction->allow_commit();
+        } catch (Exception $e) {
+            $transaction->rollback($e);
+            $result = false;
+        }
+    }
+
+    if ($oldversion < 2016110700) {
+        $transaction = $DB->start_delegated_transaction();
+        try {
+            print '<h2>1.1.03</h2>';
+            print '<p>Writing default configuration settings</p>';
+            set_config('default_notify_parents', 0, 'block_homework');
             $transaction->allow_commit();
         } catch (Exception $e) {
             $transaction->rollback($e);

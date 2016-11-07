@@ -1,3 +1,24 @@
+1.1.03
+    * Bug fix #3791 - Scales now limited to Standard scales and scales on the
+      specified Course
+    * Feature #3794 - View all Homework timetable tab - now shows icon for set
+      homework only if teaching group matches any group restriction on the
+      assignment
+    * Feature #3801 - added setting to control whether Notify Parents is turned
+      On or Off by default when setting new homework
+
+1.1.01
+    * Feature - added settings page (accessible via Site administration |
+      Plugins | Blocks | Homework)
+    * Feature #3732 - Added setting for default submission type
+    * Feature #3759 - Notification emails now all use HTML
+    * Feature #3768 - Hide assignments from non-participants
+    * Feature #3770 - Added settings for amount of days to show past homework
+      for (different settings for block level and also view all/marking screens)
+    * Feature #3777 - Section can now be specified rather than always adding
+      new assignments to the topmost (General) section of a course
+    * Feature #3779 - Behaviour writeback - Action Taken field added
+
 1.0.25
     * Bugfix #3754 - Reports - dates default to current academic year
     * Feature #3724 - View all Homework - employees now only see homework set

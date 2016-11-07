@@ -214,7 +214,7 @@ abstract class htmlBaseTextInput extends htmlBaseInput {
 class htmlTextInput extends htmlBaseTextInput {
 
     protected $autofilloptions = null;
-    
+
     public function __construct($id, $name, $value, $title = null, $autofilloptions = null) {
         parent::__construct('text', $id, $name, $value, $title);
         $this->autofilloptions = $autofilloptions;
@@ -228,7 +228,7 @@ class htmlTextInput extends htmlBaseTextInput {
             $html = '<input' . $this->get_properties() .
                     ' value="' . htmlspecialchars($this->value) . '"' .
                     $this->get_class() . ' list="' . $listid . '" autocomplete="off"><datalist id="' . $listid . '">';
-            foreach($this->autofilloptions as $option) {
+            foreach ($this->autofilloptions as $option) {
                 $html .= '<option>' . $option . '</option>';
             }
             $html .= '</datalist>';

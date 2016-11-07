@@ -29,6 +29,14 @@ defined('MOODLE_INTERNAL') || die();
 
 class block_homework_utils {
 
+    public static function format_datetime($epoch) {
+        if ($epoch <= 0) {
+            return block_homework_moodle_utils::get_str('notapplicable');
+        }
+        $format = 'strftimedatetime';
+        return userdate($epoch, get_string($format));
+    }
+
     public static function format_date($epoch, $short = false) {
         if ($epoch <= 0) {
             return block_homework_moodle_utils::get_str('notapplicable');
@@ -183,8 +191,10 @@ class block_homework_utils {
         return $unmarked;
     }
 
-    public static function add_homework_tracking_record($coursemoduleid, $userid, $subject, $duration, $notifyparents,
-                                                        $notesforparentssubject, $notesforparents) {
+    public static function add_homework_tracking_record($coursemoduleid, $userid, $subject, $duration,
+                                                        $notifyother, $notifyotheremail,
+                                                        $notifyparents, $notesforparentssubject, $notesforparents,
+                                                        $notifylearners, $notesforlearnerssubject, $notesforlearners) {
         global $DB;
 
         $do = array(
@@ -192,15 +202,22 @@ class block_homework_utils {
             'userid' => $userid,
             'subject' => $subject,
             'duration' => $duration,
+            'notifyother' => $notifyother,
+            'notifyotheremail' => $notifyotheremail,
             'notifyparents' => $notifyparents,
             'notesforparentssubject' => $notesforparentssubject,
-            'notesforparents' => $notesforparents
+            'notesforparents' => $notesforparents,
+            'notifylearners' => $notifylearners,
+            'notesforlearnerssubject' => $notesforlearnerssubject,
+            'notesforlearners' => $notesforlearners
         );
         return $DB->insert_record('block_homework_assignment', $do);
     }
 
-    public static function update_homework_tracking_record($coursemoduleid, $userid, $subject, $duration, $notifyparents,
-                                                           $notesforparentssubject, $notesforparents) {
+    public static function update_homework_tracking_record($coursemoduleid, $userid, $subject, $duration,
+                                                           $notifyother, $notifyotheremail,
+                                                           $notifyparents, $notesforparentssubject, $notesforparents,
+                                                           $notifylearners, $notesforlearnerssubject, $notesforlearners) {
         global $DB;
 
         $id = $DB->get_field('block_homework_assignment', 'id', array('coursemoduleid' => $coursemoduleid));
@@ -210,9 +227,14 @@ class block_homework_utils {
                 'userid' => $userid,
                 'subject' => $subject,
                 'duration' => $duration,
+                'notifyother' => $notifyother,
+                'notifyotheremail' => $notifyotheremail,
                 'notifyparents' => $notifyparents,
                 'notesforparentssubject' => $notesforparentssubject,
-                'notesforparents' => $notesforparents
+                'notesforparents' => $notesforparents,
+                'notifylearners' => $notifylearners,
+                'notesforlearnerssubject' => $notesforlearnerssubject,
+                'notesforlearners' => $notesforlearners
             );
             return $DB->update_record('block_homework_assignment', $do);
         } else {
@@ -223,6 +245,7 @@ class block_homework_utils {
     public static function remove_homework_tracking_record($coursemoduleid) {
         global $DB;
 
+        $DB->delete_records('block_homework_notification', array('coursemoduleid' => $coursemoduleid));
         $DB->delete_records('block_homework_assignment', array('coursemoduleid' => $coursemoduleid));
         $DB->delete_records('block_homework_item', array('coursemoduleid' => $coursemoduleid));
     }
@@ -322,5 +345,4 @@ class block_homework_utils {
         $rgb = explode(',', $value);
         return '#' . self::int_to_hex($rgb[0]) . self::int_to_hex($rgb[1]) . self::int_to_hex($rgb[2]);
     }
-
 }

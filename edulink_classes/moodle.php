@@ -108,15 +108,18 @@ class block_homework_moodle_utils {
     public static function get_assignment($coursemoduleid) {
         global $DB;
         // Change last two joins to OUTER JOIN if you want to include assignments set outside of the block.
-        $sql = "SELECT cm.id, c.id AS courseid, c.fullname AS coursefullname,
+        $sql = "SELECT cm.id, c.id AS courseid, c.fullname AS coursefullname, cs.section,
                 a.id AS assignmentid, a.name, a.intro, a.grade, a.nosubmissions,
                 a.blindmarking, a.markingworkflow, a.markingallocation, a.teamsubmission,
                 eh.subject, cm.availability, a.grade, gi.scaleid,
                 a.allowsubmissionsfromdate, a.duedate, eh.duration,
                 eh.notifyparents, eh.notesforparentssubject, eh.notesforparents,
+                eh.notifylearners, eh.notesforlearnerssubject, eh.notesforlearners,
+                eh.notifyother, eh.notifyotheremail,
                 eh.userid, u.firstname, u.lastname
                 FROM {course_modules} cm
                 JOIN {course} c ON (c.id = cm.course)
+                JOIN {course_sections} cs ON (cs.id = cm.section)
                 JOIN {assign} a ON (a.id = cm.instance)
                 JOIN {grade_items} gi ON (gi.courseid = cm.course AND gi.itemtype = 'mod' AND gi.itemmodule = 'assign'
                 AND gi.iteminstance = a.id)
@@ -161,6 +164,7 @@ class block_homework_moodle_utils {
                         'assignmentid' => $ass->assignmentid,
                         'courseid' => $ass->courseid,
                         'coursename' => $ass->coursefullname,
+                        'section' => $ass->section,
                         'name' => $ass->name,
                         'description' => $ass->intro,
                         'subject' => $ass->subject,
@@ -172,6 +176,11 @@ class block_homework_moodle_utils {
                         'notifyparents' => $ass->notifyparents,
                         'notesforparentssubject' => $ass->notesforparentssubject,
                         'notesforparents' => $ass->notesforparents,
+                        'notifylearners' => $ass->notifylearners,
+                        'notesforlearnerssubject' => $ass->notesforlearnerssubject,
+                        'notesforlearners' => $ass->notesforlearners,
+                        'notifyother' => $ass->notifyother,
+                        'notifyotheremail' => $ass->notifyotheremail,
                         'userid' => $setbyuserid,
                         'setbyname' => $setbyname,
                         'gradingenabled' => $ass->grade != 0,
@@ -191,7 +200,7 @@ class block_homework_moodle_utils {
      * @param int $groupid - limit to assignments available to this group
      * @return array - of assignment instance ids
      */
-    public static function get_assignments_for_group($courseid, $groupid = 0, $fromdate = 0, $todate = 0) {
+    public static function get_assignments_for_group_or_user($courseid, $groupid = 0, $userid = 0, $fromdate = 0, $todate = 0) {
         global $DB;
         $assignments = array();
         $params = array();
@@ -222,7 +231,7 @@ class block_homework_moodle_utils {
         $rows = $DB->get_records_sql($sql, $params);
         if ($rows) {
             foreach ($rows as $row) {
-                if (($groupid == 0) || (self::is_group_in_availability_json($row->availability, $groupid))) {
+                if (($groupid == 0) || (self::is_group_or_user_in_availability_json($row->availability, $groupid, $userid))) {
                     $assignments[] = (object) array(
                                 'id' => $row->id,
                                 'assignmentid' => $row->instance,
@@ -243,16 +252,25 @@ class block_homework_moodle_utils {
      * @param array $groupids
      * @return string
      */
-    public static function groupids_to_availability_json($groupids) {
-        if (empty($groupids) || !is_array($groupids)) {
+    public static function groups_and_users_to_availability_json($groupids, $userids) {
+        if (empty($groupids) && empty($userids)) {
             $availability = null;
         } else {
             $availability = array("op" => "|",
                 "c" => array(),
-                "show" => true);
-            foreach ($groupids as $groupid) {
-                if ($groupid > 0) {
-                    $availability["c"][] = (object) array("type" => "group", "id" => intval($groupid));
+                "show" => false);
+            if (!empty($groupids)) {
+                foreach ($groupids as $groupid) {
+                    if ($groupid > 0) {
+                        $availability["c"][] = (object) array("type" => "group", "id" => intval($groupid));
+                    }
+                }
+            }
+            if (!empty($userids)) {
+                foreach ($userids as $userid) {
+                    if ($userid > 0) {
+                        $availability["c"][] = (object) array("type" => "user", "id" => intval($userid));
+                    }
                 }
             }
             if (!empty($availability["c"])) {
@@ -266,26 +284,57 @@ class block_homework_moodle_utils {
 
     /**
      * Given a course_module availability string, return true if the specified
-     * group is included (or there are no restrictions)
+     * group or user is included (or there are no restrictions)
      * @param string $availability
      * @param int $groupid
+     * @param int $userid
      * @return boolean
      */
-    public static function is_group_in_availability_json($availability, $groupid) {
-        $a = json_decode($availability);
-        // Only detangle availability structure if it's the simple 'any of these groups' variation.
-        $show = (isset($a->show) && ($a->show)) || ((isset($a->showc) && ($a->showc))) && (isset($a->op));
-        if ($show && ((($a->op == "&") && (count($a->c) == 1)) || ($a->op == "|"))) {
-            foreach ($a->c as $condition) {
-                if (($condition->type == 'group') && ($condition->id == $groupid)) {
-                    return true;
+    public static function is_group_or_user_in_availability_json($availability, $groupid, $userid, $defaultifempty = true) {
+        if ($availability == '') {
+            return $defaultifempty;
+        }
+        if (is_object($availability)) {
+            $a = $availability;
+        } else {
+            $a = json_decode($availability);
+        }
+        $operator = $a->op;
+        $matchedany = false;
+        $matchedall = true;
+        $nogroups = true;
+        $nousers = true;
+        foreach ($a->c as $condition) {
+            if (($condition->type == 'group') && ($groupid != null)) {
+                $nogroups = false;
+                if ($condition->id == $groupid) {
+                    $matchedany = true;
+                } else {
+                    $matchedall = false;
+                }
+            } else if (($condition->type == 'user') && ($userid != null)) {
+                $nousers = false;
+                if ($condition->id == $userid) {
+                    $matchedany = true;
+                } else {
+                    $matchedall = false;
                 }
             }
-            return false;
-        } else {
-            // A more complex structure so assume the group is included.
-            return true;
         }
+        if ($matchedall) {
+            $matchedany = true;
+        }
+        if ((($groupid != null) && ($nogroups)) || (($userid != null) && ($nousers))) {
+            $matchedany = $defaultifempty;
+            $matchedall = $defaultifempty;
+        }
+        switch($operator) {
+            case '|' : return $matchedany;
+            case '&' : return $matchedall;
+            case '!|' : return ! $matchedany;
+            case '!&' : return ! $matchedall;
+        }
+        return $defaultifempty;
     }
 
     /**
@@ -296,8 +345,8 @@ class block_homework_moodle_utils {
      * @param int $sectionid - id of the course section  (course_sections table)
      * @return array or false on failure
      */
-    public static function add_course_module($courseid, $moduleid, $instanceid, $sectionid, $groupids) {
-        $availability = self::groupids_to_availability_json($groupids);
+    public static function add_course_module($courseid, $moduleid, $instanceid, $sectionid, $groupids, $userids) {
+        $availability = self::groups_and_users_to_availability_json($groupids, $userids);
         $coursemodule = array(
             'course' => $courseid,
             'module' => $moduleid,
@@ -326,9 +375,9 @@ class block_homework_moodle_utils {
         return $coursemodule;
     }
 
-    public static function update_course_module_group_availability($coursemoduleid, $groupids) {
+    public static function update_course_module_availability($coursemoduleid, $groupids, $userids) {
         global $DB;
-        $availability = self::groupids_to_availability_json($groupids);
+        $availability = self::groups_and_users_to_availability_json($groupids, $userids);
         return $DB->set_field("course_modules", "availability", $availability, array("id" => $coursemoduleid));
     }
 
@@ -346,6 +395,18 @@ class block_homework_moodle_utils {
         } else {
             return false;
         }
+    }
+
+    public static function get_course_sections($courseid) {
+        $sections = array();
+        $format = course_get_format($courseid);
+        if ($format->uses_sections()) {
+            $sectioninfo = get_fast_modinfo($courseid)->get_section_info_all();
+            foreach ($sectioninfo as $section) {
+                $sections[$section->section] = get_section_name($courseid, $section->section);
+            }
+        }
+        return $sections;
     }
 
     /**
@@ -377,16 +438,16 @@ class block_homework_moodle_utils {
      * @param int $duedate - date as linux epoch
      * @return array or boolean false if failed
      */
-    public static function add_course_activity($module, $courseid, $name, $description, $textsubmissions, $filesubmissions, $grade,
-                                               $availabledate, $duedate, $groupids) {
+    public static function add_course_activity($module, $courseid, $sectionnumber, $name, $description, $textsubmissions,
+                                               $filesubmissions, $grade, $availabledate, $duedate, $groupids, $userids) {
         global $DB;
         // First we need the id of the module.
         $moduleid = self::get_module_id($module);
         if (!$moduleid) {
             return false;
         }
-        // ...then the id of the general section on the course.
-        $sectionid = self::get_course_section_id($courseid, 0);
+        // ...then the id of the appropriate section on the course.
+        $sectionid = self::get_course_section_id($courseid, $sectionnumber);
         if (!$sectionid) {
             return false;
         }
@@ -394,7 +455,7 @@ class block_homework_moodle_utils {
         // module, but course module wants an instance... so create course
         // module with 0 instance to start with, then come back and update it
         // with the instance id once that's been added.
-        $coursemodule = self::add_course_module($courseid, $moduleid, 0, $sectionid, $groupids);
+        $coursemodule = self::add_course_module($courseid, $moduleid, 0, $sectionid, $groupids, $userids);
         if (!$coursemodule) {
             return false;
         }
@@ -410,14 +471,14 @@ class block_homework_moodle_utils {
                     'coursemodule' => $coursemodule["id"],
                     'intro' => $description,
                     'introformat' => 1,
-                    // next few bits use defaults set in 
-                    // Site administration / Plugins / Activity modules / Assignment / Assignment settings
-                    'alwaysshowdescription' => get_config('assign','alwaysshowdescription'),
-                    'submissiondrafts' => get_config('assign','submissiondrafts'),
-                    'requiresubmissionstatement' => get_config('assign','requiresubmissionstatement'),
-                    'sendnotifications' => get_config('assign','sendnotifications'),
-                    'sendlatenotifications' => get_config('assign','sendlatenotifications'),
-                    'sendstudentnotifications' => get_config('assign','sendstudentnotifications'),
+                    // Next few bits use defaults set in
+                    // Site administration / Plugins / Activity modules / Assignment / Assignment settings.
+                    'alwaysshowdescription' => get_config('assign', 'alwaysshowdescription'),
+                    'submissiondrafts' => get_config('assign', 'submissiondrafts'),
+                    'requiresubmissionstatement' => get_config('assign', 'requiresubmissionstatement'),
+                    'sendnotifications' => get_config('assign', 'sendnotifications'),
+                    'sendlatenotifications' => get_config('assign', 'sendlatenotifications'),
+                    'sendstudentnotifications' => get_config('assign', 'sendstudentnotifications'),
                     'duedate' => $duedate,
                     'cutoffdate' => 0,
                     'allowsubmissionsfromdate' => $availabledate,
@@ -455,7 +516,7 @@ class block_homework_moodle_utils {
         // There's a csv field in each course_sections record that defines
         // which course modules actually show up on the course view so add our new
         // course module link id to the list... also rebuilds the course cache.
-        course_add_cm_to_section($courseid, $coursemodule["id"], 0);
+        course_add_cm_to_section($courseid, $coursemodule["id"], $sectionnumber);
 
         return $activity;
     }
@@ -466,11 +527,12 @@ class block_homework_moodle_utils {
         rebuild_course_cache($courseid, true);
     }
 
-    public static function update_course_activity($coursemoduleid, $name, $description, $textsubmissions, $filesubmissions, $grade,
-                                                  $availabledate, $duedate, $groupids) {
+    public static function update_course_activity($coursemoduleid, $sectionnumber, $name, $description, $textsubmissions,
+                                                  $filesubmissions, $grade, $availabledate, $duedate, $groupids, $userids) {
         global $DB;
         $result = false;
-        if (self::update_course_module_group_availability($coursemoduleid, $groupids)) {
+        $existing = self::get_assignment($coursemoduleid);
+        if (self::update_course_module_availability($coursemoduleid, $groupids, $userids)) {
             $coursemodule = get_coursemodule_from_id(false, $coursemoduleid);
             $activity = $DB->get_record($coursemodule->modname, array("id" => $coursemodule->instance));
             switch ($coursemodule->modname) {
@@ -493,6 +555,10 @@ class block_homework_moodle_utils {
                     $activity->instance = $activity->id;
                     $activity->coursemodule = $coursemoduleid;
                     $result = assign_update_instance($activity, null);
+
+                    if ($existing->section != $sectionnumber) {
+                        self::move_course_module_to_section($coursemodule->course, $coursemoduleid, $sectionnumber);
+                    }
                     break;
                 default :
                     throw new Exception("Only assign activities supported at the moment");
@@ -507,6 +573,19 @@ class block_homework_moodle_utils {
         } else {
             return $result;
         }
+    }
+
+    /**
+     * move a course module (e.g. assignment activity) from one section within a course to another section
+     * @param int $coursemoduleid
+     * @param int $sectionnumber (number, not id!)
+     * @return boolean - visibility of course module in new location
+     */
+    public static function move_course_module_to_section($courseid, $coursemoduleid, $sectionnumber) {
+        $info = get_fast_modinfo($courseid);
+        $modinfo = $info->get_cm($coursemoduleid);
+        $section = $info->get_section_info($sectionnumber);
+        return moveto_module($modinfo, $section);
     }
 
     /**
@@ -781,7 +860,7 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         return $courses;
     }
 
-    public static function get_teacher_users() {
+    public static function get_teacher_users($includeanyuser = false) {
         global $DB;
 
         $sql = "SELECT DISTINCT u.id, u.firstname, u.lastname
@@ -796,6 +875,9 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         $rows = $DB->get_records_sql($sql);
 
         $teachers = array();
+        if ($includeanyuser) {
+            $teachers[0] = get_string('anystaffmember', 'block_homework');
+        }
         if ($rows) {
             foreach ($rows as $row) {
                 $teachers[$row->id] = $row->firstname . ' ' . $row->lastname;
@@ -829,10 +911,17 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         // return $ass->count_grades();
     }
 
-    public static function get_groups() {
+    public static function get_groups($courseid = null) {
         global $DB;
-        $rows = $DB->get_records_sql("SELECT DISTINCT g.id, g.name FROM {groups} g "
-                . "JOIN {groups_members} gm ON (gm.groupid = g.id) ORDER BY g.name");
+        $sql = "SELECT DISTINCT g.id, g.name FROM {groups} g "
+                . "JOIN {groups_members} gm ON (gm.groupid = g.id) ";
+        $params = array();
+        if (($courseid != null) && ($courseid != get_site()->id)) {
+            $sql .= "WHERE g.courseid = ? ";
+            $params[] = $courseid;
+        }
+        $sql .= "ORDER BY g.name";
+        $rows = $DB->get_records_sql($sql, $params);
         $result = array();
         if ($rows) {
             foreach ($rows as $row) {
@@ -893,6 +982,16 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         return false;
     }
 
+    public static function is_availability_condition_user_present() {
+        /* Was using core_plugin_manager::instance()->get_plugins_of_type('availability') and looking for one named
+         * "user" but Moodle helpfully continues to report its existence after you remove the files, plus potential for
+         * another condition of the same name being used by somebody so specifically check for the proprietary one we
+         * use for a particular customer.
+         */
+        global $CFG;
+        return file_exists($CFG->dirroot . "/availability/condition/user/homework/reports.php");
+    }
+
     public static function get_user_type($userid) {
         $usertype = '';
         $edulink = self::is_edulink_present();
@@ -921,4 +1020,21 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         return $usertype;
     }
 
+    public static function send_message($touser, $subject, $body, $contexturl, $contexturlname) {
+        global $USER;
+        $message = new \core\message\message();
+        $message->component = 'block_homework';
+        $message->name = 'new_assignment';
+        $message->userfrom = $USER;
+        $message->userto = $touser;
+        $message->subject = $subject;
+        $message->fullmessage = strip_tags($body);
+        $message->fullmessageformat = FORMAT_MARKDOWN;
+        $message->fullmessagehtml = $body;
+        $message->notification = '1';
+        $message->replyto = $USER->email;
+        $message->contexturl = $contexturl;
+        $message->contexturlname = $contexturlname;
+        return message_send($message);
+    }
 }

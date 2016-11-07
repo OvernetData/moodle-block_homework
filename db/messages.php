@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
+ * Defines message providers
  *
  * @package    block_homework
  * @copyright  2016 Overnet Data Ltd. (@link http://www.overnetdata.com)
@@ -23,11 +23,10 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2016110700;
-$plugin->requires = 2015051100; // Requires Moodle 2.9 or above.
-$plugin->component = 'block_homework';
-$plugin->release = '1.1.03';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->dependencies = array(
-    'mod_assign' => 2015051100  // Assignment module required.
+$messageproviders = array (
+
+    // Assignment has been created.
+    'new_assignment' => array(
+    )
+
 );

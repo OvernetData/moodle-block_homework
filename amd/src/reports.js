@@ -25,6 +25,7 @@ define(['jquery',
         var grouptabledone = false;
         var studenttabledone = false;
         var schooltabledone = false;
+        var logtabledone = false;
         var baseurl = M.cfg.wwwroot + '/blocks/homework/ajax/';
         var strs = M.str.block_homework;
         
@@ -83,6 +84,10 @@ define(['jquery',
             $('#from_school').on('change',refreshSchool);
             $('#to_school').on('change',refreshSchool);
 
+            $('#loguser').on('change',refreshLog).attr("style","width:30%").select2();
+            $('#from_log').on('change',refreshLog);
+            $('#to_log').on('change',refreshLog);
+
             $('#Group_Grades-tab').on('shown.bs.tab', function(e) {
                 if (!grouptabledone) {
                     grouptabledone = true;
@@ -101,6 +106,13 @@ define(['jquery',
                 if (!schooltabledone) {
                     schooltabledone = true;
                     refreshSchool();
+                }
+            });
+
+            $('#Notifications_Log-tab').on('shown.bs.tab', function(e) {
+                if (!logtabledone) {
+                    logtabledone = true;
+                    refreshLog();
                 }
             });
 
@@ -367,6 +379,50 @@ define(['jquery',
                     $('#from_school').prop('disabled',false);
                     $('#to_school').prop('disabled',false);
                 });
+        };
+        
+        var refreshLog = function() {
+            var logtableholder = $('#logtableholder');
+            if (logtableholder.length) {
+                $('#loguser').prop('disabled',true);
+                $('#from_log').prop('disabled',true);
+                $('#to_log').prop('disabled',true);
+                $('#log_loaded').css("display","none");
+                $('#log_loading').css("display","block");
+                var url = baseurl + 'reports_log.php';
+                var params = { course: $('#course').val(),
+                                sesskey: $('#sesskey').val(),
+                                user: $('#loguser').val(),
+                                from: $('#from_log').val(),
+                                to: $('#to_log').val() };
+
+                $.ajax({
+                        method: "POST",
+                        url: url,
+                        data: params
+                        })
+                    .done(function(data, textStatus, jqXHR) {
+                        if (typeof(data.error) == 'undefined') {
+                            logtableholder.html(data.html);
+                            $fetable.initialise("log", null, M.cfg.wwwroot + '/blocks/homework');
+                        } else {
+                            $('#log_loading').css("display","none");
+                            $('#log_loaded').html('<h4 class="ond_failure">' + data.error + '</h4>');
+                            $('#log_loaded').css("display","block");
+                        }
+                        $('#loguser').prop('disabled',false);
+                        $('#from_log').prop('disabled',false);
+                        $('#to_log').prop('disabled',false);
+                    })
+                    .error(function(jqXHR, textStatus, errorThrown){
+                        $('#log_loading').css("display","none");
+                        $('#log_loaded').html('<h4 class="ond_failure">' + errorThrown + '</h4>');
+                        $('#log_loaded').css("display","block");
+                        $('#loguser').prop('disabled',false);
+                        $('#from_log').prop('disabled',false);
+                        $('#to_log').prop('disabled',false);
+                    });
+            }
         };
     };
 

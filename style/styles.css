@@ -637,3 +637,7 @@ td.ond_homework_item_duedate {
     font-weight: normal;
     color: #444444;
 }
+
+select.SumoUnder {
+    height: 100%;
+}

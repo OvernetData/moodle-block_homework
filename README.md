@@ -10,7 +10,8 @@ number one request from our customers, so this plugin is the result.
 
 This is a free plugin for Moodle that wraps the use of the Moodle Assignment 
 Activity module in a more user friendly UI, hiding the features that most users
-do not use, whilst adding some additional features such as reporting. 
+do not use, whilst adding some additional features such as learner notifications
+of new assignments and detailed reporting.
 
 When used in combination with our commercial product EduLink for Moodle, various
 additional features become available, for example achievement and behaviour 
@@ -24,11 +25,13 @@ Admin and Teachers can:
 
 * Easily set, edit and mark homework assignments
 * View reports of homework usage, group and individual grades
+* Be notified by Moodle message when homework is set
 
 Learners can:
 
 * See all their homework assignments in one place including due dates and status
 * Submit work online or mark 'non-submitted' assignments as done
+* Be notified by Moodle message when homework is set
 
 Parents can:
 
@@ -39,7 +42,7 @@ Requirements
 ------------
 
 * Moodle version 2.9 or above
-* (optional) EduLink for Moodle version 6.2.104 or above
+* (optional) EduLink for Moodle version 6.2.145 or above
 
 Installation
 ------------
@@ -84,3 +87,13 @@ Our email and SMS communication tools encourage parental and student engagement
 and participation, helping to build a strong whole-school partnership.
 
 For more information see our website at www.overnetdata.com
+
+EduLink Integrator
+------------------
+
+EduLink Integrator provides our partners: software publishers, local authorities
+and academy school chains with secure, on-demand MIS data extraction services
+from multiple schools simultaneously. Your MIS data need no longer be
+inaccessible except via dated and slow CSV exports - we offer fast, secure live
+access. For more information see www.edulinkintegrator.com or phone us on
++44 (0) 1604 807545.

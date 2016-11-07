@@ -290,6 +290,16 @@ abstract class block_homework_form_page_base extends block_homework_moodle_page_
                     $control->set_property('autocomplete', 'new-password'); // Stops Chrome autofilling user/password fields.
                     break;
 
+                case 'email' :
+                    $control = new htmlEmailInput($settingname, $settingname, $value, $title);
+                    if (isset($settingdetails["size"])) {
+                        $control->set_size($settingdetails["size"]);
+                    }
+                    if (isset($settingdetails["maxlength"])) {
+                        $control->set_max_length($settingdetails["maxlength"]);
+                    }
+                    break;
+
                 case 'colour' :
                     $control = new htmlColourInput($settingname, $settingname, $value, $title);
                     break;

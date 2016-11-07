@@ -34,4 +34,15 @@ class observers {
         \block_homework_utils::remove_homework_tracking_record($coursemoduleid);
     }
 
+    public static function message_viewed(\core\event\message_viewed $event) {
+        global $DB;
+        $lognotifications = get_config('block_homework', 'log_notifications');
+        if ($lognotifications) {
+            $data = $event->get_data();
+            $oldmessageid = $data["other"]["messageid"];
+            $newmessageid = $data["objectid"];
+            $sql = 'UPDATE {block_homework_notification} SET messagereadid = ? WHERE messageid = ?';
+            $DB->execute($sql, array($newmessageid, $oldmessageid));
+        }
+    }
 }
