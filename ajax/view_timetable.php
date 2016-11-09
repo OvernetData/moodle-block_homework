@@ -351,6 +351,6 @@ class ajaxgen_view_timetable extends ajaxgen_base {
 
 }
 
-//require_login();
-//require_sesskey();
+require_login();
+require_sesskey();
 ajaxgen_view_timetable::factory();
