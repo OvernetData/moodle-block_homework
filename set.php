@@ -683,7 +683,8 @@ class block_homework_set_page extends e\block_homework_form_page_base {
             $form[$basicstab]['note_to_parents'] = array('type' => 'hidden', 'value' => '');
         } else if ($this->edulinkpresent) {
             if (HomeworkAccess::communicator_enabled()) {
-                $assnotifyparents = ($this->editingcmid == 0) ? '' : $this->assignment->notifyparents;
+                $assnotifyparents = ($this->editingcmid == 0) ?
+                        get_config('block_homework', 'default_notify_parents') : $this->assignment->notifyparents;
                 if ($this->editingcmid == 0) {
                     $assparentnotes = $this->get_str('notifyparentsmessage');
                     $assparentnotessubject = $this->get_str('notifyparentsmessagesubject');

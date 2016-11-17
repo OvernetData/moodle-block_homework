@@ -1,3 +1,8 @@
+1.1.04
+    * Bug fix #3801 - actually plugged in setting to control whether Notify
+      Parents is turned On or Off by default when setting new homework so it
+      works
+
 1.1.03
     * Bug fix #3791 - Scales now limited to Standard scales and scales on the
       specified Course
