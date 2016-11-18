@@ -586,16 +586,14 @@ class block_homework_set_page extends e\block_homework_form_page_base {
 
         $form[$basicstab]['submissions'] = array('prompt' => $this->get_str('submissions'), 'type' => 'select',
             'options' => $submissionoptions, 'value' => $submissionsvalue);
-        $scaleoptions = array();
         $scalequery = 'SELECT id, name FROM {scale} WHERE courseid = 0 OR courseid = ' . (int) $this->courseid . ' ORDER BY name';
         $scales = $DB->get_records_sql($scalequery);
+        $scaleoptions = array(0 => 'None', 100 => $this->get_str('pointsoutof100'));
         if ($scales) {
             foreach ($scales as $scale) {
                 $scaleoptions[-$scale->id] = $scale->name;
             }
         }
-        asort($scaleoptions);
-        $scaleoptions = array_merge(array(0 => 'None', 100 => $this->get_str('pointsoutof100')), $scaleoptions);
         $assscale = ($this->editingcmid == 0) ? 100 : $this->assignment->grade;
         $todayepoch = optional_param('avail', time(), PARAM_INT);
         $today = date('Y-m-d', $todayepoch);
