@@ -458,7 +458,7 @@ class htmlTextAreaInput extends htmlControl {
 
     public function __construct($id, $name, $value, $title = null) {
         parent::__construct($id, $name, $title, 'form-control');
-        $this->value = $value;
+        $this->value = htmlspecialchars($value);
     }
 
     public function set_columns($columns) {
