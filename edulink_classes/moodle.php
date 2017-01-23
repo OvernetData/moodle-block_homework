@@ -642,9 +642,13 @@ class block_homework_moodle_utils {
     public static function get_assignment_availability_text($coursemoduleid) {
         global $PAGE, $CFG;
         if ($CFG->enableavailability != 0) {
-            $renderer = $PAGE->get_renderer('core', 'course');
-            list($course, $cminfo) = get_course_and_cm_from_cmid($coursemoduleid, 'assign');
-            return $renderer->course_section_cm_availability($cminfo);
+            try {
+                $renderer = $PAGE->get_renderer('core', 'course');
+                list($course, $cminfo) = get_course_and_cm_from_cmid($coursemoduleid, 'assign');
+                return $renderer->course_section_cm_availability($cminfo);
+            } catch(Exception $e) {
+                return $e->getMessage();
+            }
         } else {
             return '';
         }
@@ -783,7 +787,11 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
 
     public static function get_assignment_participants($coursemoduleid) {
         $ass = new assign(context_module::instance($coursemoduleid), null, null);
-        return $ass->list_participants(0, true);
+        try {
+            return $ass->list_participants(0, true);
+        } catch (Exception $e) {
+            return array();
+        }
     }
 
     public static function get_course_id_from_cmid($coursemoduleid) {
