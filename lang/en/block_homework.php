@@ -353,6 +353,8 @@ $string['newassignmentnotificationsubjectdefault'] = "New assignment created in 
 $string['newassignmentnotificationmessage'] = 'New assignment notification message';
 $string['newassignmentnotificationmessage_help'] = 'The message to send to assignment creator or third party when a new assignment is created';
 $string['newassignmentnotificationmessagedefault'] = "The following new assignment has been created:\n\n<strong><a href=\"[assignment_link]\">[assignment_name]</a></strong> in <strong>[course_name]</strong>";
+$string['maxagefuture'] = 'Max days to look into future for block listing (all users)';
+$string['maxagefuture_help'] = 'The number of days into the future that should be included in the block assignments list (all user types view)';
 $string['maxageviewall'] = 'Max days to show assignments for on view all/marking';
 $string['maxageviewall_help'] = 'The number of days that assignments should be listed in the view all and marking screens';
 $string['maxageemployee'] = 'Max days to show overdue assignments for (employees)';

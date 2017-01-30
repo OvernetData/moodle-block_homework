@@ -1,3 +1,8 @@
+1.1.06
+    * Feature #3830 - added max_age_future setting to control how far into the
+      future the block looks when deciding which homework assignments to display
+    * Bug fix - setting max_age_view_all now works!
+
 1.1.05
     * Bug fix - now copes with greater than / less than signs in text areas
 

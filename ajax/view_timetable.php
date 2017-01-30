@@ -94,8 +94,7 @@ class ajaxgen_view_timetable extends ajaxgen_base {
 
         foreach ($courses as $course) {
             // Get ALL assignment activities on the course regardless of whether the user is a participant or creator.
-            // TODO - replace false with !$this->isteacher?
-            $maxdays = get_config('block_homework', 'view_all_max_days');
+            $maxdays = get_config('block_homework', 'max_age_view_all');
             if ($maxdays < 40) {
                 $maxdays = 40;
             } else if ($maxdays > 366) {

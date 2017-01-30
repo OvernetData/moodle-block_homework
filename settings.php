@@ -33,11 +33,17 @@ if ($ADMIN->fulltree) {
     for ($i = 1; $i <= 14; $i++) {
         $days[$i] = $i;
     }
+    $daysfuture = array();
     $daysyear = array();
-    for ($i = 40; $i <= 366; $i++) {
-        $daysyear[$i] = $i;
+    for ($i = 7; $i <= 366; $i++) {
+        $daysfuture[$i] = $i;
+        if ($i >= 40) {
+            $daysyear[$i] = $i;
+        }
     }
 
+    $settings->add(new admin_setting_configselect('block_homework/max_age_future', get_string('maxagefuture', 'block_homework'),
+                       get_string('maxagefuture_help', 'block_homework'), 14, $daysfuture));
     $settings->add(new admin_setting_configselect('block_homework/max_age_view_all', get_string('maxageviewall', 'block_homework'),
                        get_string('maxageviewall_help', 'block_homework'), 40, $daysyear));
     $settings->add(new admin_setting_configselect('block_homework/max_age_employee', get_string('maxageemployee', 'block_homework'),

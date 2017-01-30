@@ -88,7 +88,13 @@ class block_homework_utils {
         $orderedhomework = array();
         foreach ($homework as $item) {
             // Filter out any where due date is not set, or too far in future.
-            if (($item->duedate == 0) || ($item->duedate > time() + 14 * 24 * 60 * 60)) {
+            $maxdaysfuture = get_config('block_homework', 'max_age_future');
+            if ($maxdaysfuture < 7) {
+                $maxdaysfuture = 7;
+            } else if ($maxdaysfuture > 366) {
+                $maxdaysfuture = 366;
+            }
+            if (($item->duedate == 0) || ($item->duedate > time() + $maxdaysfuture * 24 * 60 * 60)) {
                 continue;
             }
             $orderedhomework[date('Ymd', $item->duedate) . '-' . $item->id] = $item;
