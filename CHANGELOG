@@ -1,3 +1,7 @@
+1.1.07
+    * Bug fix - missing parameter causing View all Homework to fail with a Bad
+      Gateway error message
+
 1.1.06
     * Feature #3830 - added max_age_future setting to control how far into the
       future the block looks when deciding which homework assignments to display

@@ -270,7 +270,7 @@ class ajaxgen_view_timetable extends ajaxgen_base {
                                     // limited to teaching groups.
                                     if (!empty($period->groupid)) {
                                         if (!block_homework_moodle_utils::is_group_or_user_in_availability_json(
-                                                $activity->availability, $period->groupid)) {
+                                                $activity->availability, $period->groupid, null)) {
                                             continue;
                                         }
                                     }
