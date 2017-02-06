@@ -51,6 +51,10 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect('block_homework/max_age_other', get_string('maxageother', 'block_homework'),
                        get_string('maxageother_help', 'block_homework'), 8, $days));
 
+    $settings->add(new admin_setting_configselect('block_homework/default_showdescription',
+                       get_string('defaultshowdescription', 'block_homework'),
+                       get_string('defaultshowdescription_help', 'block_homework'), 0, $onoff));
+
     $submissionoptions = array(0 => get_string("noonlinesubs", 'block_homework'),
         1 => get_string("onlinetextsubs", 'block_homework'),
         2 => get_string("onlinefilesubs", 'block_homework'),

@@ -135,7 +135,7 @@ class block_homework_set_page extends e\block_homework_form_page_base {
                         block_homework_moodle_utils::rewrite_urls_to_pluginfile($values["introeditor"]["text"]),
                         $values["submissions"] == 1 || $values["submissions"] == 3, $values["submissions"] >= 2,
                         $values["gradingscale"], strtotime($values["available"]), strtotime($values["due"]), $values["groups"],
-                        $values["users"]);
+                        $values["users"], $values["showdescription"]);
                 if ($act) {
                     $subject = isset($values["subject"]) ? $values["subject"] : '';
                     $notetoparentssubject = isset($values["note_to_parents_subject"]) ? $values["note_to_parents_subject"] : '';
@@ -171,7 +171,7 @@ class block_homework_set_page extends e\block_homework_form_page_base {
                         block_homework_moodle_utils::rewrite_urls_to_pluginfile($values["introeditor"]["text"]),
                         $values["submissions"] == 1 || $values["submissions"] == 3, $values["submissions"] >= 2,
                         $values["gradingscale"], strtotime($values["available"]), strtotime($values["due"]), $values["groups"],
-                        $values["users"]);
+                        $values["users"], $values["showdescription"]);
                 if ($act) {
                     $subject = isset($values["subject"]) ? $values["subject"] : '';
                     $notetoparentssubject = isset($values["note_to_parents_subject"]) ? $values["note_to_parents_subject"] : '';
@@ -486,6 +486,10 @@ class block_homework_set_page extends e\block_homework_form_page_base {
         $desccontrol = $this->get_text_editor($asscontext, $introtextdraftitemid, 'introeditor', $assdesc);
         $form[$basicstab]['descriptioneditor'] = array('prompt' => $this->get_str('description'), 'type' => 'static',
             'value' => $desccontrol);
+        $defaultshowdescription = get_config('block_homework', 'default_showdescription');
+        $assshowdescription = ($this->editingcmid == 0) ? $defaultshowdescription : $this->assignment->showdescription;
+        $form[$basicstab]['showdescription'] = array('type' => 'switch', 'prompt' => $this->get_str('showdescription'),
+                'default' => $defaultshowdescription, 'value' => $assshowdescription);
 
         $fileuploader = $this->get_file_uploader($introadditionalfilesdraftitemid, $filemanageroptions);
         $form[$basicstab]['addfiles'] = array('type' => 'static', 'prompt' => $this->get_str('addfiles'), 'value' => $fileuploader);
@@ -519,7 +523,15 @@ class block_homework_set_page extends e\block_homework_form_page_base {
             // Groups on the specified course.
             $coursegroups = array();
             if (!$this->onfrontpage) {
-                $groups = groups_get_all_groups($this->courseid);
+                $coursecontext = context_course::instance($this->courseid);
+                // Debatable as to whether moodle/course:managegroups should allow selection of any group too?
+                $seeallgroups = $this->course->groupmode != 1 ||
+                                has_capability('moodle/site:accessallgroups', $coursecontext);
+                if ($seeallgroups) {
+                    $groups = groups_get_all_groups($this->courseid);
+                } else {
+                    $groups = groups_get_all_groups($this->courseid, $USER->id);
+                }
                 if (!empty($groups)) {
                     foreach ($groups as $group) {
                         $coursegroups[$group->id] = $group->name;

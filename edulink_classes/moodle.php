@@ -109,7 +109,7 @@ class block_homework_moodle_utils {
         global $DB;
         // Change last two joins to OUTER JOIN if you want to include assignments set outside of the block.
         $sql = "SELECT cm.id, c.id AS courseid, c.fullname AS coursefullname, cs.section,
-                a.id AS assignmentid, a.name, a.intro, a.grade, a.nosubmissions,
+                a.id AS assignmentid, a.name, a.intro, cm.showdescription, a.grade, a.nosubmissions,
                 a.blindmarking, a.markingworkflow, a.markingallocation, a.teamsubmission,
                 eh.subject, cm.availability, a.grade, gi.scaleid,
                 a.allowsubmissionsfromdate, a.duedate, eh.duration,
@@ -167,6 +167,7 @@ class block_homework_moodle_utils {
                         'section' => $ass->section,
                         'name' => $ass->name,
                         'description' => $ass->intro,
+                        'showdescription' => $ass->showdescription,
                         'subject' => $ass->subject,
                         'availabledate' => $ass->allowsubmissionsfromdate,
                         'duedate' => $ass->duedate,
@@ -345,7 +346,7 @@ class block_homework_moodle_utils {
      * @param int $sectionid - id of the course section  (course_sections table)
      * @return array or false on failure
      */
-    public static function add_course_module($courseid, $moduleid, $instanceid, $sectionid, $groupids, $userids) {
+    public static function add_course_module($courseid, $moduleid, $instanceid, $sectionid, $groupids, $userids, $showdescription) {
         $availability = self::groups_and_users_to_availability_json($groupids, $userids);
         $coursemodule = array(
             'course' => $courseid,
@@ -365,7 +366,8 @@ class block_homework_moodle_utils {
             'completionview' => 0,
             'completionexpected' => 0,
             'showdescription' => 0,
-            'availability' => $availability
+            'availability' => $availability,
+            'showdescription' => $showdescription
         );
         $id = add_course_module((object) $coursemodule);
         if (!$id) {
@@ -375,10 +377,11 @@ class block_homework_moodle_utils {
         return $coursemodule;
     }
 
-    public static function update_course_module_availability($coursemoduleid, $groupids, $userids) {
+    public static function update_course_module_availability($coursemoduleid, $groupids, $userids, $showdescription) {
         global $DB;
         $availability = self::groups_and_users_to_availability_json($groupids, $userids);
-        return $DB->set_field("course_modules", "availability", $availability, array("id" => $coursemoduleid));
+        return $DB->update_record("course_modules", array("id" => $coursemoduleid, "availability" => $availability,
+            "showdescription" => $showdescription));
     }
 
     /**
@@ -439,7 +442,8 @@ class block_homework_moodle_utils {
      * @return array or boolean false if failed
      */
     public static function add_course_activity($module, $courseid, $sectionnumber, $name, $description, $textsubmissions,
-                                               $filesubmissions, $grade, $availabledate, $duedate, $groupids, $userids) {
+                                               $filesubmissions, $grade, $availabledate, $duedate, $groupids, $userids,
+                                               $showdescription) {
         global $DB;
         // First we need the id of the module.
         $moduleid = self::get_module_id($module);
@@ -455,7 +459,7 @@ class block_homework_moodle_utils {
         // module, but course module wants an instance... so create course
         // module with 0 instance to start with, then come back and update it
         // with the instance id once that's been added.
-        $coursemodule = self::add_course_module($courseid, $moduleid, 0, $sectionid, $groupids, $userids);
+        $coursemodule = self::add_course_module($courseid, $moduleid, 0, $sectionid, $groupids, $userids, $showdescription);
         if (!$coursemodule) {
             return false;
         }
@@ -528,11 +532,12 @@ class block_homework_moodle_utils {
     }
 
     public static function update_course_activity($coursemoduleid, $sectionnumber, $name, $description, $textsubmissions,
-                                                  $filesubmissions, $grade, $availabledate, $duedate, $groupids, $userids) {
+                                                  $filesubmissions, $grade, $availabledate, $duedate, $groupids, $userids,
+                                                  $showdescription) {
         global $DB;
         $result = false;
         $existing = self::get_assignment($coursemoduleid);
-        if (self::update_course_module_availability($coursemoduleid, $groupids, $userids)) {
+        if (self::update_course_module_availability($coursemoduleid, $groupids, $userids, $showdescription)) {
             $coursemodule = get_coursemodule_from_id(false, $coursemoduleid);
             $activity = $DB->get_record($coursemodule->modname, array("id" => $coursemodule->instance));
             switch ($coursemodule->modname) {

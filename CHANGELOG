@@ -1,3 +1,14 @@
+1.1.08
+    * Feature - added Show Description toggle to Set Homework screen and
+      associated default setting for this in config
+    * Bug fix - if course is using Separate Groups mode, user setting Homework
+      is no longer shown all groups on Restrict to groups multiselect unless
+      they are a) a member of a group or b) have the capability
+      moodle/site:accessallgroups (which teachers do by default). Thus you can
+      now restrict the available list of groups to those a teacher is a member
+      of by turning off that capability and using Separate Groups mode on the
+      course.
+
 1.1.07
     * Bug fix - missing parameter causing View all Homework to fail with a Bad
       Gateway error message
