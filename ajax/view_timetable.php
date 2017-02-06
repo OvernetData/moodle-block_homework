@@ -202,14 +202,14 @@ class ajaxgen_view_timetable extends ajaxgen_base {
             $htmllist .= '</div>';
         }
 
-        $error_return = '';
+        $errorreturn = '';
         // Timetable.
         if ($this->edulinkpresent) {
             try {
                 $timetable = HomeworkAccess::get_timetable($displayuserid, $date);
             } catch (Exception $e) {
                 $timetable = array();
-                $error_return = $e->getMessage();
+                $errorreturn = $e->getMessage();
             }
         } else {
             $timetable = array();
@@ -350,7 +350,7 @@ class ajaxgen_view_timetable extends ajaxgen_base {
             $htmltimetable .= $table->get_html();
         }
 
-        $output = array('htmllist' => $htmllist, 'htmltimetable' => $htmltimetable, 'error_text' => $error_return);
+        $output = array('htmllist' => $htmllist, 'htmltimetable' => $htmltimetable, 'error_text' => $errorreturn);
         print json_encode($output);
     }
 
