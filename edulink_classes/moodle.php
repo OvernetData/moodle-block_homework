@@ -790,13 +790,25 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         return $ass->count_submissions_need_grading();
     }
 
+    /**
+     * Return list of users participating in an assignment activity
+     * Results are cached for two hours as this can be a slow call
+     * @param int $coursemoduleid
+     * @return array
+     */
     public static function get_assignment_participants($coursemoduleid) {
-        $ass = new assign(context_module::instance($coursemoduleid), null, null);
-        try {
-            return $ass->list_participants(0, true);
-        } catch (Exception $e) {
-            return array();
+        $cache = cache::make('block_homework', 'participants');
+        $participants = $cache->get($coursemoduleid);
+        if ($participants === false) {
+            $ass = new assign(context_module::instance($coursemoduleid), null, null);
+            try {
+                $participants = $ass->list_participants(0, true);
+                $cache->set($coursemoduleid, $participants);
+            } catch (Exception $e) {
+                $participants = array();
+            }
         }
+        return $participants;
     }
 
     public static function get_course_id_from_cmid($coursemoduleid) {

@@ -1,3 +1,7 @@
+1.1.09
+    * Performance - added caching to call fetching participant list for a
+      homework assignment
+
 1.1.08
     * Feature - added Show Description toggle to Set Homework screen and
       associated default setting for this in config

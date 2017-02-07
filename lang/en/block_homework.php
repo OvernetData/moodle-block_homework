@@ -371,3 +371,4 @@ $string['submissionsdefault'] = 'Default for Submissions';
 $string['submissionsdefault_help'] = 'Default for Submissions field when creating new assignment';
 $string['lognotifications'] = 'Log notifications';
 $string['lognotifications_help'] = 'Log notification emails and include the log on the reports screen';
+$string['cachedef_participants'] = 'Cached participant lists for each homework assignment';
