@@ -641,3 +641,7 @@ td.ond_homework_item_duedate {
 select.SumoUnder {
     height: 100%;
 }
+
+.modal-backdrop {
+    z-index: 0;
+}

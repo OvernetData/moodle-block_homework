@@ -187,6 +187,7 @@ abstract class block_homework_form_page_base extends block_homework_moodle_page_
     public function get_setting_html($settingname, $settingdetails) {
         $prompt = isset($settingdetails["prompt"]) ? $settingdetails["prompt"] : null;
         $isrequired = isset($settingdetails["required"]) ? $settingdetails["required"] : false;
+        $validate = isset($settingdetails["validate"]) ? $settingdetails["validate"] : false;
         $type = isset($settingdetails["type"]) ? $settingdetails["type"] : '';
         $default = isset($settingdetails["default"]) ? $settingdetails["default"] : null;
         $help = isset($settingdetails["help"]) ? $settingdetails["help"] : '';
@@ -359,6 +360,9 @@ abstract class block_homework_form_page_base extends block_homework_moodle_page_
             if ($isrequired) {
                 $control->set_required(true);
                 $control->add_class('ond_required');
+            }
+            if ($validate) {
+                $control->add_class('ond_validate');
             }
             if (!empty($extracontrolproperties)) {
                 foreach ($extracontrolproperties as $key => $val) {

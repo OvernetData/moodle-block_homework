@@ -155,6 +155,23 @@ define(['jquery',
                     error = strs.duedateinvalid;
                 }
             }
+            if ((control.attr("id") == "users") || (control.attr("id") == "groups")) {
+                if ($('#reqrestrict').val() == '1') {
+                    var users = $('#users');
+                    var usercount = 0;
+                    if (typeof(users) != undefined) {
+                        usercount = users.val().length;
+                    }
+                    var groups = $('#groups');
+                    var groupcount = 0;
+                    if (typeof(groups) != undefined) {
+                        groupcount = groups.val().length;
+                    }
+                    if ((usercount == 0) && (groupcount == 0)) {
+                        error = strs.mustrestrict;
+                    }
+                }
+            }
             return error;
         };
     };

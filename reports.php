@@ -98,7 +98,7 @@ class block_homework_view_reports_page extends e\block_homework_form_page_base {
             'tab1' => array('type' => 'static', 'content' => $stafftab)
         );
 
-        $groupoptions = block_homework_moodle_utils::get_groups($this->courseid);
+        $groupoptions = block_homework_moodle_utils::get_groups($this->courseid, is_siteadmin());
 
         $grouptab = $this->get_str('groupgrades');
         if (empty($groupoptions)) {

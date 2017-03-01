@@ -20,7 +20,7 @@ define(['jquery',
         $('.ond_validation_error').parents('.Zebra_Tooltip').remove();
         var invalid_count = 0;
         var strs = M.str.block_homework;
-        $('input,textarea').filter('.ond_required, .ond_validate').each(function(elementindex){
+        $('input,textarea,select').filter('.ond_required, .ond_validate').each(function(elementindex){
             var error = "";
             var valid = true;
             var control_visible = true;

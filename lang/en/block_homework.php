@@ -136,6 +136,7 @@ $string['nouserrestriction'] = 'No restriction by user(s)';
 $string['allxselected'] = 'All {0} selected';
 $string['copyof_'] = 'Copy of ';
 $string['duedateinvalid'] = 'Due date must be after available date';
+$string['mustrestrict'] = 'You must restrict the assignment to at least one group or user';
 
 $string['notifyparentsmessage'] = '<p>Dear [parent_title] [parent_lastname]</p><p>The following piece of <strong>[assignment_subject]</strong> homework has been set for <strong>[child_name]</strong>:</p><p><strong>[assignment_name]</strong></p><p>It is due on <strong>[assignment_due_date]</strong> and expected to take approximately <strong>[assignment_duration]</strong>.</p><p>The assignment can be viewed here: <a href="[assignment_link]">[assignment_name]</a></p>';
 $string['notifyparentsmessagesubject'] = '[child_firstname] has new homework';
@@ -372,3 +373,5 @@ $string['submissionsdefault_help'] = 'Default for Submissions field when creatin
 $string['lognotifications'] = 'Log notifications';
 $string['lognotifications_help'] = 'Log notification emails and include the log on the reports screen';
 $string['cachedef_participants'] = 'Cached participant lists for each homework assignment';
+$string['requirerestriction'] = 'Require restriction';
+$string['requirerestriction_help'] = 'Only allow assignment creation if it is restricted to specific group(s) or user(s)';

@@ -62,6 +62,10 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect('block_homework/submissions', get_string('submissionsdefault', 'block_homework'),
                        get_string('submissionsdefault_help', 'block_homework'), 3, $submissionoptions));
 
+    $settings->add(new admin_setting_configselect('block_homework/require_restriction',
+                       get_string('requirerestriction', 'block_homework'),
+                       get_string('requirerestriction_help', 'block_homework'), 0, $yesno));
+
     $settings->add(new admin_setting_configselect('block_homework/default_notify_parents',
                        get_string('defaultnotifyparents', 'block_homework'),
                        get_string('defaultnotifyparents_help', 'block_homework'), 0, $onoff));

@@ -415,6 +415,7 @@ class block_homework_set_page extends e\block_homework_form_page_base {
             $courselabelhtml = substr($courselabelhtml, 0, $i) . $coursebutton->get_html() . '</label>';
         }
         $form[$basicstab] = array(
+            'reqrestrict' => array('type' => 'hidden', 'value' => get_config('block_homework', 'require_restriction')),
             'course' => array('type' => 'hidden', 'value' => $this->courseid),
             'sesskey' => array('type' => 'hidden', 'value' => $USER->sesskey),
             'courselabel' => array('type' => 'static', 'prompt' => $this->get_str('course'),
@@ -550,13 +551,30 @@ class block_homework_set_page extends e\block_homework_form_page_base {
                     'value' => $this->get_str('nogroupsoncourse'));
             } else {
                 $form[$basicstab]['groups'] = array('prompt' => $this->get_str('restricttogroups'), 'type' => "multiselect",
-                    'options' => $coursegroups, 'value' => $selectedgroups);
+                    'options' => $coursegroups, 'value' => $selectedgroups, 'validate' => true);
             }
             if (block_homework_moodle_utils::is_availability_condition_user_present()) {
                 $context = \context_course::instance($this->courseid);
+                $seeallusers = $this->course->groupmode != 1 ||
+                                has_capability('moodle/site:accessallgroups', $coursecontext);
                 $courseuserobjects = get_role_users(5, $context);
                 $courseusers = array();
+                $myusers = array();
+                if (!$seeallusers) {
+                    $usersinmygroups = $DB->get_records_sql('SELECT DISTINCT userid FROM {groups_members} gm2 ' .
+                            'WHERE groupid IN (SELECT DISTINCT gm.groupid FROM {groups_members} gm WHERE gm.userid = ? ' .
+                            'AND gm.groupid IN (SELECT g.id FROM {groups} g WHERE g.courseid = ?))',
+                            array($USER->id, $this->courseid));
+                    if ($usersinmygroups) {
+                        foreach($usersinmygroups as $myuser) {
+                            $myusers[] = $myuser->userid;
+                        }
+                    }
+                }
                 foreach ($courseuserobjects as $user) {
+                    if ((!$seeallusers) && (!in_array($user->id, $myusers))) {
+                        continue;
+                    }
                     $courseusers[$user->id] = $user->lastname . ', ' . $user->firstname;
                     if ($this->editingcmid != 0) {
                         if (block_homework_moodle_utils::is_group_or_user_in_availability_json($this->assignment->availability,
@@ -571,7 +589,7 @@ class block_homework_set_page extends e\block_homework_form_page_base {
                         'type' => "label-warning", 'value' => $this->get_str('nousersoncourse'));
                 } else {
                     $form[$basicstab]['users'] = array('prompt' => $this->get_str('restricttousers'), 'type' => "multiselect",
-                        'options' => $courseusers, 'value' => $selectedusers);
+                        'options' => $courseusers, 'value' => $selectedusers, 'validate' => true);
                 }
             } else {
                 $form[$basicstab]['users'] = array('type' => "hidden", 'value' => '');

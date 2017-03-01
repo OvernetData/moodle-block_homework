@@ -1,3 +1,10 @@
+1.1.11
+    * Feature - added Require Restrictions setting to config, if set to Yes you
+      cannot save an assignment unless it has been restricted to at least one
+      Group (i.e. disallows assignments available to all course users)
+    * Group Grades report now only shows all groups to site admins, honours
+      Separate Groups modes on courses otherwise
+
 1.1.09
     * Performance - added caching to call fetching participant list for a
       homework assignment

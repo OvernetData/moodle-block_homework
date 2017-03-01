@@ -936,21 +936,63 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         // return $ass->count_grades();
     }
 
-    public static function get_groups($courseid = null) {
-        global $DB;
-        $sql = "SELECT DISTINCT g.id, g.name FROM {groups} g "
-                . "JOIN {groups_members} gm ON (gm.groupid = g.id) ";
-        $params = array();
-        if (($courseid != null) && ($courseid != get_site()->id)) {
-            $sql .= "WHERE g.courseid = ? ";
-            $params[] = $courseid;
-        }
-        $sql .= "ORDER BY g.name";
-        $rows = $DB->get_records_sql($sql, $params);
+    public static function get_groups($courseid = null, $admin = false) {
+        global $DB, $USER;
+
         $result = array();
-        if ($rows) {
-            foreach ($rows as $row) {
-                $result[$row->id] = $row->name;
+        
+        if (!$admin) {
+            // Non admins only see their own courses and groups.
+            $courseids = array();
+            if ((!is_null($courseid)) && ($courseid != get_site()->id)) {
+                $courseids[] = $courseid;
+            }
+
+            $showcoursename = false;
+            if (empty($courseids)) {
+                $showcoursename = true;
+                $courses = enrol_get_all_users_courses($USER->id);
+                foreach($courses as $course) {
+                    $courseids[] = $course->id;
+                }
+            }
+
+            foreach($courseids as $thiscourseid) {
+                $coursecontext = context_course::instance($thiscourseid);
+                $course = get_course($thiscourseid);
+                $seeallgroups = $course->groupmode != 1 || has_capability('moodle/site:accessallgroups', $coursecontext);
+                if ($seeallgroups) {
+                    $groups = groups_get_all_groups($thiscourseid);
+                } else {
+                    $groups = groups_get_all_groups($thiscourseid, $USER->id);
+                }
+                foreach($groups as $group) {
+                    $groupname = $group->name;
+                    if ($showcoursename) {
+                        $groupname .=  ' (' . $course->fullname . ')';
+                    }
+                    $result[$group->id] = $groupname;
+                }
+            }
+        } else {
+            $sql = "SELECT DISTINCT g.id, g.name, c.fullname FROM {groups} g "
+                    . "JOIN {groups_members} gm ON (gm.groupid = g.id) "
+                    . "JOIN {course} c ON (c.id = g.courseid) ";
+            $params = array();
+            if (($courseid != null) && ($courseid != get_site()->id)) {
+                $sql .= "WHERE g.courseid = ? ";
+                $params[] = $courseid;
+            }
+            $sql .= "ORDER BY g.name";
+            $rows = $DB->get_records_sql($sql, $params);
+            if ($rows) {
+                foreach ($rows as $row) {
+                    $groupname = $row->name;
+                    if (is_null($courseid) || ($courseid == get_site()->id)) {
+                        $groupname .= ' (' . $row->fullname . ')';
+                    }
+                    $result[$row->id] = $groupname;
+                }
             }
         }
         return $result;
