@@ -157,17 +157,31 @@ define(['jquery',
             }
             if ((control.attr("id") == "users") || (control.attr("id") == "groups")) {
                 if ($('#reqrestrict').val() == '1') {
-                    var users = $('#users');
                     var usercount = 0;
-                    if (typeof(users) != undefined) {
-                        usercount = users.val().length;
-                    }
-                    var groups = $('#groups');
                     var groupcount = 0;
-                    if (typeof(groups) != undefined) {
-                        groupcount = groups.val().length;
+                    var users = $('#users');
+                    var groups = $('#groups');
+                    var usersoncourse = false;
+                    var groupsoncourse = false;
+                    if (typeof(users) != undefined) {
+                        if (users.prop("type") == "select-multiple") {
+                            usersoncourse = true;
+                            var userval = users.val();
+                            if (userval != null) {
+                                usercount = userval.length;
+                            }
+                        }
                     }
-                    if ((usercount == 0) && (groupcount == 0)) {
+                    if (typeof(groups) != undefined) {
+                        if (users.prop("type") == "select-multiple") {
+                            groupsoncourse = true;
+                            var groupval = groups.val();
+                            if (groupval != null) {
+                                groupcount = groupval.length;
+                            }
+                        }
+                    }
+                    if ((usercount == 0) && (groupcount == 0) && (usersoncourse || groupsoncourse)) {
                         error = strs.mustrestrict;
                     }
                 }
