@@ -91,7 +91,7 @@ define(['jquery',
                     }
                     $('#date').prop('disabled',false);
             })
-            .error(function(jqXHR, textStatus, errorThrown){
+            .fail(function(jqXHR, textStatus, errorThrown){
                 displayError(errorThrown);
             });
         };
