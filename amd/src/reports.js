@@ -53,6 +53,7 @@ define(['jquery',
                     delay: 250,
                     data: function (params) {
                         return {
+                            sesskey: $('#sesskey').val(),
                             q: params.term, // Search term.
                             page: params.page
                         };
@@ -187,7 +188,7 @@ define(['jquery',
                     $('#from_staff').prop('disabled',false);
                     $('#to_staff').prop('disabled',false);
                 })
-                .error(function(jqXHR, textStatus, errorThrown){
+                .fail(function(jqXHR, textStatus, errorThrown){
                     clearCanvas('mychart1', errorThrown);
                     clearCanvas('mychart2', errorThrown);
                     clearCanvas('mychart3', errorThrown);
@@ -230,7 +231,7 @@ define(['jquery',
                         $('#from_group').prop('disabled',false);
                         $('#to_group').prop('disabled',false);
                     })
-                    .error(function(jqXHR, textStatus, errorThrown){
+                    .fail(function(jqXHR, textStatus, errorThrown){
                         $('#groupgrades_loading').css("display","none");
                         $('#groupgrades_loaded').html('<h4 class="ond_failure">' + errorThrown + '</h4>');
                         $('#groupgrades_loaded').css("display","block");
@@ -275,7 +276,7 @@ define(['jquery',
                         $('#from_student').prop('disabled',false);
                         $('#to_student').prop('disabled',false);
                     })
-                    .error(function(jqXHR, textStatus, errorThrown){
+                    .fail(function(jqXHR, textStatus, errorThrown){
                         $('#selectstudentmessage').css("display","none");
                         $('#studentgrades_loading').css("display","none");
                         $('#studentgrades_loaded').html('<h4 class="ond_failure">' + errorThrown + '</h4>');
@@ -370,7 +371,7 @@ define(['jquery',
                     $('#from_school').prop('disabled',false);
                     $('#to_school').prop('disabled',false);
                 })
-                .error(function(jqXHR, textStatus, errorThrown){
+                .fail(function(jqXHR, textStatus, errorThrown){
                     clearCanvas('mychart4', errorThrown);
                     clearCanvas('mychart5', errorThrown);
                     $('#staffstatistics_loading').css("display","none");
@@ -414,7 +415,7 @@ define(['jquery',
                         $('#from_log').prop('disabled',false);
                         $('#to_log').prop('disabled',false);
                     })
-                    .error(function(jqXHR, textStatus, errorThrown){
+                    .fail(function(jqXHR, textStatus, errorThrown){
                         $('#log_loading').css("display","none");
                         $('#log_loaded').html('<h4 class="ond_failure">' + errorThrown + '</h4>');
                         $('#log_loaded').css("display","block");
