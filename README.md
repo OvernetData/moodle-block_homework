@@ -88,6 +88,15 @@ and participation, helping to build a strong whole-school partnership.
 
 For more information see our website at www.overnetdata.com
 
+EduLink One
+-----------
+
+EduLink One provides an integrated school information platform which draws
+together a range of existing schools systems with an engaging user interface
+allowing teachers, parents and students to communicate and access information
+in one place. For more information see www.overnetdata.com/edulinkone or phone
+us on +44 (0) 1604 807545.
+
 EduLink Integrator
 ------------------
 

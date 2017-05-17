@@ -3,6 +3,7 @@
       assignment goes live, not on creation
     * View all / Mark screens now filter out hidden assignments if hidden 
       activities capability is turned off
+    * View assignment screen now includes a delete button (teacher view)
 
 1.1.15
     * Feature - added date picker as IE/Firefox don't support HTML5 date input
