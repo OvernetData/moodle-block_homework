@@ -18,7 +18,7 @@
  * English language strings for Homework block
  *
  * @package    block_homework
- * @copyright  2016 Overnet Data Ltd. (@link http://www.overnetdata.com)
+ * @copyright  2017 Overnet Data Ltd. (@link http://www.overnetdata.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 // Admin.
@@ -42,10 +42,11 @@ $string['inxdays'] = '{$a} days';
 $string['xdaysago'] = '{$a} days ago';
 $string['notapplicable'] = 'N/A';
 $string['versionx'] = 'Version {$a}';
+$string['sendnotifications'] = 'Send homework notifications';
 
 // Page base.
 $string['pageerror'] = 'Sorry, there\'s been a bit of a problem: {$a}';
-$string['contactsupport'] = 'Please report bugs to <a href="mailto:support@overnetdata.com">support@overnetdata.com</a>.';
+$string['contactsupport'] = 'Please report bugs to your support department if you have one, otherwise to <a href="mailto:support@overnetdata.com">support@overnetdata.com</a>.';
 $string['nopermission'] = 'Sorry, you don\'t have permission to use this page';
 $string['edulinkfeatureonly'] = 'This feature is only available if you have <a href="http://www.overnetdata.com/products/edulink-moodle/introduction/">EduLink for Moodle</a> installed';
 
@@ -144,6 +145,8 @@ $string['notifylearnersmessage'] = '<p>Dear [learner_firstname]</p><p>The follow
 $string['notifylearnersmessagesubject'] = 'You have a new assignment';
 $string['durationnotspecified'] = '(duration not specified)';
 $string['parentalnotificationerror'] = 'Error trying to notify parents: {$a}';
+$string['learnernotificationerror'] = 'Error trying to notify learners: {$a}';
+$string['adminnotificationerror'] = 'Error trying to notify admin: {$a}';
 $string['emailerrors'] = '{$a->count} error(s), example error message: {$a->example}';
 $string['messageprovider:new_assignment'] = 'Notification of new homework assignments';
 $string['messagesendfailed'] = 'Sending Moodle message failed';
@@ -193,6 +196,7 @@ $string['mark'] = 'Mark';
 $string['details'] = 'Details';
 $string['viewhomeworkitem'] = 'View Homework Assignment';
 $string['edithomeworkitem'] = 'Edit Homework';
+$string['deletehomeworkitem'] = 'Delete Homework';
 $string['files'] = 'Files';
 $string['dueonlc'] = 'due on';
 $string['markeddone'] = 'Marked done';
@@ -364,6 +368,8 @@ $string['maxageemployee'] = 'Max days to show overdue assignments for (employees
 $string['maxageemployee_help'] = 'The number of days that overdue assignments should be listed in the block (teacher/admin view)';
 $string['maxageother'] = 'Max days to show overdue assignments for (learners/parents)';
 $string['maxageother_help'] = 'The number of days that overdue assignments should be listed in the block (learner/parent view)';
+$string['allowshowdescription'] = 'Allow users to set Show Description';
+$string['allowshowdescription_help'] = 'Whether users can set the Show Description setting';
 $string['defaultshowdescription'] = 'Default setting for Show Description';
 $string['defaultshowdescription_help'] = 'Whether the Show Description setting is on or off by default';
 $string['defaultnotifyparents'] = 'Default setting for Notify Parents';

@@ -17,7 +17,7 @@
 /**
  * Base class for any page that uses our forms framework
  * @package    block_homework
- * @copyright  2016 Overnet Data Ltd. (@link http://www.overnetdata.com)
+ * @copyright  2017 Overnet Data Ltd. (@link http://www.overnetdata.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -42,10 +42,11 @@ abstract class block_homework_form_page_base extends block_homework_moodle_page_
         $this->use_stylesheet($path . 'bootstrap-switch.css');
         $this->use_stylesheet($path . 'sumoselect.css');
         $this->use_stylesheet($path . 'select2.css');
+        $this->use_stylesheet($path . 'datepicker.css');
         $this->use_stylesheet($path . 'zebra_tooltips.css');
     }
 
-    protected function get_form($groups, $savebutton = 'Save', $cancelbutton = 'Cancel', $usetabs = true) {
+    protected function get_form($groups, $buttons = array(), $usetabs = true) {
         $this->groups = $groups;
 
         $html = '<div id="ond_form_progress"><div id="ond_form_progress_bar"></div></div>';
@@ -86,15 +87,11 @@ abstract class block_homework_form_page_base extends block_homework_moodle_page_
         if ($usetabs) {
             $html .= "\n</div>";
         }
-        if ($savebutton || $cancelbutton) {
+        if (!empty($buttons)) {
             $html .= '<div class="ond_centered" id="ond_form_buttons">';
-            if ($savebutton) {
-                $submit = new \block_homework\local\edulink\htmlButton('btnsubmit', $savebutton);
-                $html .= $submit->get_html();
-            }
-            if ($cancelbutton) {
-                $cancel = new \block_homework\local\edulink\htmlButton('btncancel', $cancelbutton);
-                $html .= $cancel->get_html();
+            foreach ($buttons as $buttonname => $buttontext) {
+                $button = new \block_homework\local\edulink\htmlButton($buttonname, $buttontext);
+                $html .= $button->get_html();
             }
             $html .= '</div>';
         }

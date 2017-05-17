@@ -17,7 +17,7 @@
 /**
  * Upgrade from one block version to another
  * @package    block_homework
- * @copyright  2016 Overnet Data Ltd. (@link http://www.overnetdata.com)
+ * @copyright  2017 Overnet Data Ltd. (@link http://www.overnetdata.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/../../../config.php');
@@ -106,6 +106,32 @@ function xmldb_block_homework_upgrade($oldversion = 0) {
             print '<h2>1.1.03</h2>';
             print '<p>Writing default configuration settings</p>';
             set_config('default_notify_parents', 0, 'block_homework');
+            $transaction->allow_commit();
+        } catch (Exception $e) {
+            $transaction->rollback($e);
+            $result = false;
+        }
+    }
+
+    if ($oldversion < 2017051500) {
+        $transaction = $DB->start_delegated_transaction();
+        try {
+            print '<h2>1.1.16</h2>';
+            $dbman = $DB->get_manager();
+            print '<p>Adding notificationssent field to block_homework_assignment table</p>';
+            $asstable = new xmldb_table('block_homework_assignment');
+            $nsfield = new xmldb_field('notificationssent', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+            if (!$dbman->field_exists($asstable, $nsfield)) {
+                $dbman->add_field($asstable, $nsfield);
+                $nsindex = new xmldb_index('ix_notificationssent');
+                $nsindex->set_attributes(XMLDB_INDEX_NOTUNIQUE, array('notificationssent'));
+                $dbman->add_index($asstable, $nsindex);
+                // Assume notifications sent for homework assignments that are already live.
+                $sql = 'UPDATE {block_homework_assignment} bha SET notificationssent = 1 WHERE EXISTS(' .
+                        'SELECT 1 FROM {assign} a JOIN {course_modules} cm ON (a.id = cm.instance) '
+                        . 'WHERE cm.id = bha.coursemoduleid AND a.allowsubmissionsfromdate < ?)';
+                $DB->execute($sql, array(time()));
+            }
             $transaction->allow_commit();
         } catch (Exception $e) {
             $transaction->rollback($e);

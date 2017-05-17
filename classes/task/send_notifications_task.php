@@ -14,20 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace block_homework\task;
+
 /**
- * Version information
- *
+ * Scheduled task to send out notifications of new assignments
  * @package    block_homework
  * @copyright  2017 Overnet Data Ltd. (@link http://www.overnetdata.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2017051700;
-$plugin->requires = 2015051100; // Requires Moodle 2.9 or above.
-$plugin->component = 'block_homework';
-$plugin->release = '1.1.16';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->dependencies = array(
-    'mod_assign' => 2015051100  // Assignment module required.
-);
+require_once($CFG->dirroot . '/blocks/homework/edulink_classes/homework.php');
+
+class send_notifications_task extends \core\task\scheduled_task {
+    public function get_name() {
+        return get_string('sendnotifications', 'block_homework');
+    }
+
+    public function execute() {
+        \block_homework_utils::send_new_assignment_notifications();
+    }
+}

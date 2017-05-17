@@ -82,7 +82,8 @@ class block_homework_mark_page extends e\block_homework_form_page_base {
                 $form = $this->get_form_settings();
                 if (is_array($form)) {
                     $this->set_scripts();
-                    return $this->get_form($form);
+                    $buttons = array('btnsubmit' => $this->get_str("save"), 'btncancel' => $this->get_str("cancel"));
+                    return $this->get_form($form, $buttons);
                 } else {
                     return $form;
                 }

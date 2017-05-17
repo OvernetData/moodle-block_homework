@@ -17,7 +17,7 @@
 /**
  * Various functions relying on Moodle, e.g. accessing assignment details
  * @package    block_homework
- * @copyright  2016 Overnet Data Ltd. (@link http://www.overnetdata.com)
+ * @copyright  2017 Overnet Data Ltd. (@link http://www.overnetdata.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
@@ -48,8 +48,8 @@ class block_homework_moodle_utils {
      * @param int $courseid
      * @return array
      */
-    public static function get_assignments_on_course($courseid, $maximumdaysage = 28) {
-        global $DB;
+    public static function get_assignments_on_course($courseid, $maximumdaysage = 28, $restricttouserid = null) {
+        global $DB, $USER;
         $activities = array();
         // Get instances of each assign activity type. Change last two joins to OUTER JOIN to include non-homework block items.
         $sql = "SELECT cm.id, cm.instance, cm.availability, cm.completion, eh.subject, eh.userid, u.firstname, u.lastname,
@@ -76,24 +76,26 @@ class block_homework_moodle_utils {
                     // created via our homework block - find out creator name the slow way.
                     list($setbyuserid, $setbyname) = self::get_course_module_creator($assignment->id);
                 } */
-                $activities[$assignment->id] = (object) array(
-                            'courseid' => $assignment->courseid,
-                            'coursename' => $assignment->courseshortname,
-                            'id' => $assignment->id,
-                            'type' => $assignment->name,
-                            'instanceid' => $assignment->instance,
-                            'assignmentid' => $assignment->instance,
-                            'name' => $assignment->name,
-                            'description' => $assignment->intro,
-                            'availabledate' => $assignment->allowsubmissionsfromdate,
-                            'duedate' => $assignment->duedate,
-                            'completion' => $assignment->completion,
-                            'grade' => intval($assignment->grade),
-                            'availability' => json_decode($assignment->availability),
-                            'subject' => $assignment->subject,
-                            'userid' => $setbyuserid,
-                            'setbyname' => $setbyname,
-                            'nosubmissions' => $assignment->nosubmissions != 0);
+                if (is_null($restricttouserid) || ($setbyuserid == $USER->id)) {
+                    $activities[$assignment->id] = (object) array(
+                                'courseid' => $assignment->courseid,
+                                'coursename' => $assignment->courseshortname,
+                                'id' => $assignment->id,
+                                'type' => $assignment->name,
+                                'instanceid' => $assignment->instance,
+                                'assignmentid' => $assignment->instance,
+                                'name' => $assignment->name,
+                                'description' => $assignment->intro,
+                                'availabledate' => $assignment->allowsubmissionsfromdate,
+                                'duedate' => $assignment->duedate,
+                                'completion' => $assignment->completion,
+                                'grade' => intval($assignment->grade),
+                                'availability' => json_decode($assignment->availability),
+                                'subject' => $assignment->subject,
+                                'userid' => $setbyuserid,
+                                'setbyname' => $setbyname,
+                                'nosubmissions' => $assignment->nosubmissions != 0);
+                }
             }
         }
         return $activities;
@@ -651,7 +653,7 @@ class block_homework_moodle_utils {
                 $renderer = $PAGE->get_renderer('core', 'course');
                 list($course, $cminfo) = get_course_and_cm_from_cmid($coursemoduleid, 'assign');
                 return $renderer->course_section_cm_availability($cminfo);
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 return $e->getMessage();
             }
         } else {
@@ -940,7 +942,7 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         global $DB, $USER;
 
         $result = array();
-        
+
         if (!$admin) {
             // Non admins only see their own courses and groups.
             $courseids = array();
@@ -952,12 +954,12 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
             if (empty($courseids)) {
                 $showcoursename = true;
                 $courses = enrol_get_all_users_courses($USER->id);
-                foreach($courses as $course) {
+                foreach ($courses as $course) {
                     $courseids[] = $course->id;
                 }
             }
 
-            foreach($courseids as $thiscourseid) {
+            foreach ($courseids as $thiscourseid) {
                 $coursecontext = context_course::instance($thiscourseid);
                 $course = get_course($thiscourseid);
                 $seeallgroups = $course->groupmode != 1 || has_capability('moodle/site:accessallgroups', $coursecontext);
@@ -966,10 +968,10 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
                 } else {
                     $groups = groups_get_all_groups($thiscourseid, $USER->id);
                 }
-                foreach($groups as $group) {
+                foreach ($groups as $group) {
                     $groupname = $group->name;
                     if ($showcoursename) {
-                        $groupname .=  ' (' . $course->fullname . ')';
+                        $groupname .= ' (' . $course->fullname . ')';
                     }
                     $result[$group->id] = $groupname;
                 }
@@ -1087,7 +1089,7 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         return $usertype;
     }
 
-    public static function send_message($touser, $subject, $body, $contexturl, $contexturlname) {
+    public static function send_message($touser, $subject, $body, $contexturl, $contexturlname, $courseid) {
         global $USER;
         $message = new \core\message\message();
         $message->component = 'block_homework';
@@ -1102,6 +1104,7 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         $message->replyto = $USER->email;
         $message->contexturl = $contexturl;
         $message->contexturlname = $contexturlname;
+        $message->courseid = $courseid;
         return message_send($message);
     }
 }

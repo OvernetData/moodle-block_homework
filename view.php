@@ -81,7 +81,7 @@ class block_homework_view_page extends e\block_homework_form_page_base {
             $form = $this->get_form_settings();
             if (is_array($form)) {
                 $this->set_scripts();
-                return $this->get_form($form, false, false);
+                return $this->get_form($form, array());
             } else {
                 return $form;
             }

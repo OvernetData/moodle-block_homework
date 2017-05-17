@@ -18,7 +18,8 @@
         <FIELD NAME="notesforlearnerssubject" TYPE="char" LENGTH="255" NOTNULL="false"  SEQUENCE="false" PREVIOUS="notifylearners" NEXT="notesforlearners"/>
         <FIELD NAME="notesforlearners" TYPE="text" NOTNULL="false"  SEQUENCE="false" PREVIOUS="notesforlearnerssubject" NEXT="notifyother"/>
         <FIELD NAME="notifyother" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="notesforlearners" NEXT="notifyotheremail"/>
-        <FIELD NAME="notifyotheremail" TYPE="char" LENGTH="255" NOTNULL="false"  SEQUENCE="false" PREVIOUS="notifyother"/>
+        <FIELD NAME="notifyotheremail" TYPE="char" LENGTH="255" NOTNULL="false"  SEQUENCE="false" PREVIOUS="notifyother" NEXT="notificationssent"/>
+        <FIELD NAME="notificationssent" TYPE="int" LENGTH="10" NOTNULL="false"  SEQUENCE="false" PREVIOUS="notifyotheremail"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -26,6 +27,7 @@
       <INDEXES>
         <INDEX NAME="ix_coursemoduleid" UNIQUE="true" FIELDS="coursemoduleid"/>
         <INDEX NAME="ix_userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="ix_notificationssent" UNIQUE="false" FIELDS="notificationssent"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="block_homework_item" COMMENT="Table recording which SIMS achievement/behaviour items were logged against activity assignments set by EduLink Homework block">

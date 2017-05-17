@@ -109,16 +109,35 @@ class block_homework_view_assignment_page extends e\block_homework_form_page_bas
                     $html .= '</div>';
                     return $html;
                 }
+            } else if (optional_param('action', '', PARAM_RAW) == 'delete') {
+                $cmid = optional_param('id', 0, PARAM_INT);
+                $coursecontext = context_course::instance($this->courseid);
+                $html = '<div class="ond_centered">';
+                if (has_capability('mod/assign:remove', $coursecontext)) {
+                    block_homework_moodle_utils::remove_course_activity($cmid);
+                    $label = new e\htmlLabel('info', $this->get_str('assignmentdeleted'));
+                } else {
+                    $label = new e\htmlLabel('warning', $this->get_str('nopermission'));
+                }
+                $html .= $label->get_html() . '<br>';
+                $link = new e\htmlHyperlink('', $this->get_str('returntocourse'), $CFG->wwwroot . '/course/view.php?id=' .
+                        $course, $this->get_str('returntocourse_title'));
+                $link->set_class('ond_material_button_raised');
+                $html .= $link->get_html();
+                $html .= '</div>';
+                return $html;
             } else {
                 $form = $this->get_form_settings();
                 if (is_array($form)) {
                     $this->set_scripts();
-                    $okbutton = false;
+                    $buttons = array();
+
                     $cancelbutton = $this->get_str("returntocourse");
                     $coursecontext = context_course::instance($this->courseid);
                     if (!has_capability('moodle/course:view', $coursecontext)) {
                         $cancelbutton = $this->get_str("ok");
                     }
+                    $deletebutton = false;
                     if ($this->usertype == "learner") {
                         if ($this->assignmentstatus->nosubmissionrequired && !$this->assignmentstatus->submitted &&
                                 !$this->assignmentstatus->graded && !$this->assignmentstatus->completed) {
@@ -133,8 +152,18 @@ class block_homework_view_assignment_page extends e\block_homework_form_page_bas
                         }
                     } else if ($this->canedit) {
                         $okbutton = $this->get_str("edithomeworkitem");
+                        $deletebutton = $this->get_str("deletehomeworkitem");
                     }
-                    return $this->get_form($form, $okbutton, $cancelbutton);
+                    if ($okbutton !== false) {
+                        $buttons["btnsubmit"] = $okbutton;
+                    }
+                    if ($deletebutton !== false) {
+                        $buttons["btndelete"] = $deletebutton;
+                    }
+                    if ($cancelbutton !== false) {
+                        $buttons["btncancel"] = $cancelbutton;
+                    }
+                    return $this->get_form($form, $buttons);
                 } else {
                     return $form;
                 }
@@ -149,7 +178,6 @@ class block_homework_view_assignment_page extends e\block_homework_form_page_bas
         global $CFG;
 
         $introtextdraftitemid = file_get_submitted_draft_itemid('introeditor');
-        // $introadditionalfilesdraftitemid = file_get_submitted_draft_itemid('introattachment');
         // Now create a draft area (if drafitemid is 0 - in which case draftitemid is set to a new id)
         // or fetch the existing one (e.g. if in the process of saving the new/edited assignment).
         $itemid = 0;
@@ -157,8 +185,6 @@ class block_homework_view_assignment_page extends e\block_homework_form_page_bas
         // Both intro description editor and file uploader use draft area so set that up.
         $filemanageroptions = $this->get_file_uploader_options($asscontext, 0);
         file_prepare_draft_area($introtextdraftitemid, $asscontext->id, 'mod_assign', 'intro', $itemid, $filemanageroptions);
-        // file_prepare_draft_area($introadditionalfilesdraftitemid, $asscontext->id, 'mod_assign', 'introattachment', $itemid,
-        // $filemanageroptions);
         $assdesc = '<div class="ond_prompted">' . file_rewrite_pluginfile_urls($this->assignment->description, 'draftfile.php',
                 context_user::instance($this->userid)->id, 'user', 'draft', $introtextdraftitemid) . '</div>';
 

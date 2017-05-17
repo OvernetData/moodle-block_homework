@@ -1,3 +1,16 @@
+1.1.16
+    * Notifications of new assignments now sent by scheduled task when
+      assignment goes live, not on creation
+    * View all / Mark screens now filter out hidden assignments if hidden 
+      activities capability is turned off
+
+1.1.15
+    * Feature - added date picker as IE/Firefox don't support HTML5 date input
+    * Clone assignment feature removed
+    * Feature - added config setting to allow you to hide the Show Description
+      toggle entirely and just rely upon the default setting
+    * Bug fix - student lookup on grade reports now works
+
 1.1.11
     * Feature - added Require Restrictions setting to config, if set to Yes you
       cannot save an assignment unless it has been restricted to at least one

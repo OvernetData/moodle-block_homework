@@ -21,8 +21,9 @@ define(['jquery',
                 return;
             }
 
-            $('#btncancel').on('click',cancelScreen);
-            $('#btnsubmit').click(markAsDone);
+            $('#btncancel').on('click', cancelScreen);
+            $('#btndelete').on('click', deleteAssignment);
+            $('#btnsubmit').on('click', markAsDone);
         };
 
         // Private functions.
@@ -38,6 +39,10 @@ define(['jquery',
             } else {
                 window.location = M.cfg.wwwroot + "/mod/assign/view.php?id=" + $('#id').val() + "&action=editsubmission";
             }
+        };
+        
+        var deleteAssignment = function() {
+            window.location = M.cfg.wwwroot + "/course/mod.php?sesskey=" + M.cfg.sesskey + "&sr=0&delete=" + $('#id').val();
         };
     };
 

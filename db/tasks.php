@@ -15,19 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
+ * Defines scheduled tasks for homework block
  *
  * @package    block_homework
  * @copyright  2017 Overnet Data Ltd. (@link http://www.overnetdata.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2017051700;
-$plugin->requires = 2015051100; // Requires Moodle 2.9 or above.
-$plugin->component = 'block_homework';
-$plugin->release = '1.1.16';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->dependencies = array(
-    'mod_assign' => 2015051100  // Assignment module required.
+$tasks = array(
+    array(
+        'classname' => 'block_homework\task\send_notifications_task',
+        'blocking' => 0,
+        'minute' => '*/5',
+        'hour' => '8-20',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
+    )
 );

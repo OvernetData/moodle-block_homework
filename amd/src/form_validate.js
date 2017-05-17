@@ -84,6 +84,9 @@ define(['jquery',
         });
         if (invalid_count === 0) {
             if (typeof(customSubmitFunc) == "undefined") {
+                $('[data-toggle="datepicker"]').each(function(){
+                    $(this).val($(this).prop("data-date"));
+                });
                 $('#ond_form').submit();
             } else {
                 customSubmitFunc();

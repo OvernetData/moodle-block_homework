@@ -58,7 +58,7 @@ class block_homework_view_reports_page extends e\block_homework_form_page_base {
         $usertype = block_homework_moodle_utils::get_user_type($this->userid);
         if ($usertype == "employee") {
             $form = $this->get_form_settings();
-            return $this->get_form($form, false, false);
+            return $this->get_form($form, array()); // No save/cancel buttons.
         } else {
             $label = new e\htmlLabel('label-warning', $this->get_str('nopermission'));
             return $label->get_html();

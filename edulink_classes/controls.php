@@ -18,7 +18,7 @@
  * Classes for various HTML controls that are responsible for producing their
  * own output, assuming use of various Bootstrap scripts
  * @package    block_homework
- * @copyright  2016 Overnet Data Ltd. (@link http://www.overnetdata.com)
+ * @copyright  2017 Overnet Data Ltd. (@link http://www.overnetdata.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -306,7 +306,9 @@ class htmlDateInput extends htmlBaseInput {
         }
         $this->tomorrowbutton = $includetomorrowbutton;
         $this->nextweekbutton = $includenextweekbutton;
-        parent::__construct('date', $id, $name, $value, $title);
+        parent::__construct('text', $id, $name, $value, $title);
+        $this->set_property('data-toggle', 'datepicker');
+        $this->set_property('data-date', $value);
     }
 
     public function get_html() {

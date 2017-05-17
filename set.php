@@ -18,7 +18,7 @@
  * Set homework assignment page
  *
  * @package    block_homework
- * @copyright  2016 Overnet Data Ltd. (@link http://www.overnetdata.com)
+ * @copyright  2017 Overnet Data Ltd. (@link http://www.overnetdata.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . "/../../config.php");
@@ -29,10 +29,6 @@ require_once($CFG->dirroot . "/mod/assign/lib.php");
 require_once($CFG->dirroot . "/mod/assign/externallib.php");
 require_once($CFG->dirroot . "/lib/modinfolib.php");
 require_once($CFG->dirroot . "/lib/formslib.php");
-$extended = $CFG->dirroot . "/availability/condition/user/homework/utils.php";
-if (file_exists($extended)) {
-    require_once($extended);
-}
 
 use block_homework\local\edulink as e;
 
@@ -128,8 +124,8 @@ class block_homework_set_page extends e\block_homework_form_page_base {
             $values = $this->get_submitted_values($form);
             $act = null;
             $activity = $values["activity"];
-            if (($activity == "0") || (substr($activity, 0, 5) == 'clone')) {
-                // Cloning existing or creating new one from scratch.
+            if ($activity == "0") {
+                // Creating new one from scratch.
                 $act = block_homework_moodle_utils::add_course_activity("assign",
                         $values["course"], $values["section"], $values["name"],
                         block_homework_moodle_utils::rewrite_urls_to_pluginfile($values["introeditor"]["text"]),
@@ -153,21 +149,10 @@ class block_homework_set_page extends e\block_homework_form_page_base {
                                     $values["notifyother"], $values["notifyotheremail"],
                                     $values["notifyparents"], $notetoparentssubject, $notetoparents,
                                     $values["notifylearners"], $notetolearnerssubject, $notetolearners);
-                    if (($values["notifyparents"] == 1) && ($notetoparents != '')) {
-                        $html .= $this->send_parental_notifications($this->courseid, $act["coursemodule"], $values["subject"],
-                                $values["name"], $values["due"], $values["duration"], $notetoparentssubject, $notetoparents);
-                    }
-                    if (($values["notifylearners"] == 1) && ($notetolearners != '')) {
-                        $html .= $this->send_learner_notifications($this->courseid, $act["coursemodule"], $values["subject"],
-                                $values["name"], $values["due"], $values["duration"], $notetolearnerssubject, $notetolearners);
-                    }
-                    $html .= $this->send_admin_notifications($this->courseid, $act["coursemodule"], $values["subject"],
-                            $values["name"], $values["notifyother"] == 1 ? $values["notifyotheremail"] : '');
                 }
             } else {
                 // Editing existing activity.
-                $act = block_homework_moodle_utils::update_course_activity(substr($activity, 4), // Skip the use. bit at the start.
-                        $values["section"], $values["name"],
+                $act = block_homework_moodle_utils::update_course_activity($activity, $values["section"], $values["name"],
                         block_homework_moodle_utils::rewrite_urls_to_pluginfile($values["introeditor"]["text"]),
                         $values["submissions"] == 1 || $values["submissions"] == 3, $values["submissions"] >= 2,
                         $values["gradingscale"], strtotime($values["available"]), strtotime($values["due"]), $values["groups"],
@@ -189,16 +174,7 @@ class block_homework_set_page extends e\block_homework_form_page_base {
                                     $values["notifyother"], $values["notifyotheremail"],
                                     $values["notifyparents"], $notetoparentssubject, $notetoparents,
                                     $values["notifylearners"], $notetolearnerssubject, $notetolearners);
-                    if (($values["notifyparents"] == 1) && ($notetoparents != '')) {
-                        $html .= $this->send_parental_notifications($this->courseid, $act["coursemodule"], $values["subject"],
-                                $values["name"], $values["due"], $values["duration"], $notetoparentssubject, $notetoparents);
-                    }
-                    if (($values["notifylearners"] == 1) && ($notetolearners != '')) {
-                        $html .= $this->send_learner_notifications($this->courseid, $act["coursemodule"], $values["subject"],
-                                $values["name"], $values["due"], $values["duration"], $notetolearnerssubject, $notetolearners);
-                    }
                 }
-                // Don't send admin notifications on edit.
             }
             if ($act) {
                 // Intro text uses 'intro' draft file area but 'introeditor' control has the draft item id in its itemid key.
@@ -236,133 +212,14 @@ class block_homework_set_page extends e\block_homework_form_page_base {
         return $html;
     }
 
-    protected function send_parental_notifications($courseid, $coursemoduleid, $assignmentsubject, $assignmentname,
-            $assignmentdue, $assignmentduration, $subject, $body) {
-        $notifyerror = HomeworkAccess::notify_parents($courseid, $coursemoduleid, $assignmentsubject,
-                $assignmentname, $assignmentdue, $assignmentduration, $subject, $body);
-        if ($notifyerror != '') {
-            $label = new e\htmlLabel('label-warning', $this->get_str('parentalnotificationerror', $notifyerror));
-            return $label->get_html() . '<br>';
-        }
-        return '';
-    }
-
-    public static function send_learner_notifications($courseid, $coursemoduleid, $assignmentsubject, $assignmentname,
-            $assignmentdue, $assignmentduration, $subject, $body) {
-        global $CFG, $DB;
-
-        if ($assignmentduration == '') {
-            $assignmentduration = get_string('durationnotspecified', 'block_homework');
-        } else {
-            $assignmentduration = block_homework_utils::get_duration_description($assignmentduration);
-        }
-        $errors = array();
-        $formattedduedate = block_homework_utils::format_date(strtotime($assignmentdue));
-        $variables = array(
-            'assignment_subject' => $assignmentsubject,
-            'subject' => $assignmentsubject,
-            'assignment_name' => $assignmentname,
-            'assignment_due_date' => $formattedduedate,
-            'assignment_duration' => $assignmentduration,
-            'assignment_link' => $CFG->wwwroot . '/blocks/homework/assignment.php?course=' . $courseid . '&id=' .
-            $coursemoduleid,
-            'learner_name ' => '',
-            'learner_lastname' => '',
-            'learner_firstname' => '');
-        $learners = block_homework_moodle_utils::get_assignment_participants($coursemoduleid);
-        $lognotifications = get_config('block_homework', 'log_notifications');
-        foreach ($learners as $learnerentry) {
-            $learner = $DB->get_record('user', array('id' => $learnerentry->id), 'id,firstname,lastname,email');
-            $variables["learner_name"] = $learner->firstname . " " . $learner->lastname;
-            $variables["learner_lastname"] = $learner->lastname;
-            $variables["learner_firstname"] = $learner->firstname;
-            $notificationbody = $body;
-            $notificationsubject = $subject;
-            foreach ($variables as $name => $value) {
-                $notificationbody = str_ireplace('[' . $name . ']', $value, $notificationbody);
-                $notificationsubject = str_ireplace('[' . $name . ']', $value, $notificationsubject);
-            }
-            // Moodle editor helpfully inserts full site URL into any link it thinks needs it so this gets rid of any resulting
-            // duplicates if you use a link that is a template e.g. <a href="[assignment_link]">blah</a>.
-            $notificationbody = str_replace($CFG->wwwroot . '/' . $CFG->wwwroot, $CFG->wwwroot, $notificationbody);
-            $messageid = block_homework_moodle_utils::send_message($learner->id, $notificationsubject, $notificationbody,
-                    $variables["assignment_link"], $variables["assignment_name"]);
-            if (!$messageid) {
-                $errors[] = $variables["learner_name"] . ": " . get_string('messagesendfailed', 'block_homework');
-            } else {
-                if (($lognotifications) && (class_exists('block_homework_utils_extended'))) {
-                    block_homework_utils_extended::log_notification($coursemoduleid, $learner->id, $learner->email, $messageid);
-                }
-            }
-        }
-        if (count($errors) > 0) {
-            return get_string('emailerrors', 'block_homework', array('count' => count($errors), 'example' => $errors[0]));
-        }
-        return '';
-    }
-
-    public static function send_admin_notifications($courseid, $coursemoduleid, $assignmentsubject, $assignmentname,
-                                                    $notifyotheremail) {
-        global $USER, $CFG;
-        $notifycreator = get_config('block_homework', 'notify_creator');
-        $lognotifications = get_config('block_homework', 'log_notifications');
-        $course = get_course($courseid);
-        $variables = array(
-            'assignment_subject' => $assignmentsubject,
-            'subject' => $assignmentsubject,
-            'assignment_name' => $assignmentname,
-            'assignment_link' => $CFG->wwwroot . '/blocks/homework/assignment.php?course=' . $courseid . '&id=' .
-            $coursemoduleid,
-            'course_name' => $course->fullname);
-        $notificationbody = get_config('block_homework', 'new_assign_notification_message');
-        $notificationsubject = get_config('block_homework', 'new_assign_notification_subject');
-        foreach ($variables as $name => $value) {
-            $notificationbody = str_ireplace('[' . $name . ']', $value, $notificationbody);
-            $notificationsubject = str_ireplace('[' . $name . ']', $value, $notificationsubject);
-        }
-        // Moodle editor helpfully inserts full site URL into any link it thinks needs it so this gets rid of any resulting
-        // duplicates if you use a link that is a template e.g. <a href="[assignment_link]">blah</a>.
-        $notificationbody = str_replace($CFG->wwwroot . '/' . $CFG->wwwroot, $CFG->wwwroot, $notificationbody);
-        $errors = array();
-        if ($notifycreator) {
-            $messageid = block_homework_moodle_utils::send_message($USER->id, $notificationsubject, $notificationbody,
-                    $variables["assignment_link"], $variables["assignment_name"]);
-            if (!$messageid) {
-                $errors[] = fullname($USER) . ": " . get_string('messagesendfailed', 'block_homework');
-            } else {
-                if (($lognotifications) && (class_exists('block_homework_utils_extended'))) {
-                    block_homework_utils_extended::log_notification($coursemoduleid, $USER->id, $USER->email, $messageid);
-                }
-            }
-        }
-        if ($notifyotheremail != '') {
-            if (class_exists('block_homework_utils_extended')) {
-                $error = block_homework_utils_extended::send_email($USER, $notifyotheremail, '', $notificationsubject,
-                    $notificationbody);
-            } else {
-                $error = 'Incomplete installation';
-            }
-            if ($error != '') {
-                $errors[] = $error;
-            } else {
-                if (($lognotifications) && (class_exists('block_homework_utils_extended'))) {
-                    block_homework_utils_extended::log_notification($coursemoduleid, null, $notifyotheremail, null);
-                }
-            }
-        }
-        if (count($errors) > 0) {
-            return get_string('emailerrors', 'block_homework', array('count' => count($errors), 'example' => $errors[0]));
-        }
-        return '';
-    }
-
     protected function set_homework_form() {
         global $CFG;
 
         $form = $this->get_form_settings();
         if (is_array($form)) {
             $this->set_scripts();
-            return $this->get_form($form, $this->get_str('save'), $this->get_str('cancel'), false);   // Don't use tabs.
+            $buttons = array('btnsubmit' => $this->get_str('save'), 'btncancel' => $this->get_str('cancel'));
+            return $this->get_form($form, $buttons, false);   // Don't use tabs.
         } else {
             $html = '<div class="ond_centered">';
             $label = new e\htmlLabel('label-warning', $form);
@@ -414,10 +271,15 @@ class block_homework_set_page extends e\block_homework_form_page_base {
             $i = strpos($courselabelhtml, '</label>');
             $courselabelhtml = substr($courselabelhtml, 0, $i) . $coursebutton->get_html() . '</label>';
         }
+        $dateformat = get_string("strftimedatefullshort");
+        $dateformat = str_replace('%d', 'dd', $dateformat);
+        $dateformat = str_replace('%m', 'mm', $dateformat);
+        $dateformat = str_replace('%y', 'yyyy', $dateformat);
         $form[$basicstab] = array(
             'reqrestrict' => array('type' => 'hidden', 'value' => get_config('block_homework', 'require_restriction')),
             'course' => array('type' => 'hidden', 'value' => $this->courseid),
             'sesskey' => array('type' => 'hidden', 'value' => $USER->sesskey),
+            'dateformat' => array('type' => 'hidden', 'value' => $dateformat),
             'courselabel' => array('type' => 'static', 'prompt' => $this->get_str('course'),
                 'value' => $courselabelhtml));
 
@@ -433,28 +295,7 @@ class block_homework_set_page extends e\block_homework_form_page_base {
             $form[$basicstab]['section'] = array('type' => 'hidden', 'value' => '0');
         }
 
-        $activityoptions = array(0 => $this->get_str('createnewassignmentactivity'));
-        $activities = block_homework_moodle_utils::get_assignments_on_course($this->courseid);
-        if (!empty($activities)) {
-            $cloneactivities = array();
-            foreach ($activities as $value => $activity) {
-                $cloneactivities['clone.' . $value] = $this->get_str('clone_') . $activity->name;
-            }
-            $activityoptions = array_merge($activityoptions, array($this->get_str('cloneexistingactivity') => $cloneactivities));
-        }
-        if ($this->editingcmid == 0) {
-            $form[$basicstab]['activity'] = array('type' => 'select', 'prompt' => $this->get_str('activity'),
-                'options' => $activityoptions);
-        } else {
-            $form[$basicstab]['activity'] = array('type' => 'hidden', 'value' => 'use.' . $this->editingcmid);
-        }
-        $activityvars = 'var ondEduLinkActivities = ' . json_encode($activities) . ';';
-        $defaultgroup = optional_param('group', 0, PARAM_INT);
-        if ($defaultgroup > 0) {
-            $activityvars .= ' var ondEduLinkDefaultGroup = ' . $defaultgroup . ';';
-        }
-        $form[$basicstab]['activity_variables'] = array('type' => 'script',
-            'value' => $activityvars);
+        $form[$basicstab]['activity'] = array('type' => 'hidden', 'value' => $this->editingcmid);
 
         $assname = ($this->editingcmid == 0) ? '' : $this->assignment->name;
         $form[$basicstab]['name'] = array('prompt' => $this->get_str('name'), 'type' => 'text', 'size' => 50,
@@ -489,8 +330,13 @@ class block_homework_set_page extends e\block_homework_form_page_base {
             'value' => $desccontrol);
         $defaultshowdescription = get_config('block_homework', 'default_showdescription');
         $assshowdescription = ($this->editingcmid == 0) ? $defaultshowdescription : $this->assignment->showdescription;
-        $form[$basicstab]['showdescription'] = array('type' => 'switch', 'prompt' => $this->get_str('showdescription'),
-                'default' => $defaultshowdescription, 'value' => $assshowdescription);
+        if (get_config('block_homework', 'allow_showdescription') == 1) {
+            $form[$basicstab]['showdescription'] = array('type' => 'switch', 'prompt' => $this->get_str('showdescription'),
+                    'default' => $defaultshowdescription, 'value' => $assshowdescription);
+        } else {
+            $form[$basicstab]['showdescription'] = array('type' => 'hidden', 'default' => $defaultshowdescription,
+                'value' => $assshowdescription);
+        }
 
         $fileuploader = $this->get_file_uploader($introadditionalfilesdraftitemid, $filemanageroptions);
         $form[$basicstab]['addfiles'] = array('type' => 'static', 'prompt' => $this->get_str('addfiles'), 'value' => $fileuploader);
@@ -556,7 +402,7 @@ class block_homework_set_page extends e\block_homework_form_page_base {
             if (block_homework_moodle_utils::is_availability_condition_user_present()) {
                 $context = \context_course::instance($this->courseid);
                 $seeallusers = $this->course->groupmode != 1 ||
-                                has_capability('moodle/site:accessallgroups', $coursecontext);
+                                has_capability('moodle/site:accessallgroups', $context);
                 $courseuserobjects = get_role_users(5, $context);
                 $courseusers = array();
                 $myusers = array();
@@ -566,7 +412,7 @@ class block_homework_set_page extends e\block_homework_form_page_base {
                             'AND gm.groupid IN (SELECT g.id FROM {groups} g WHERE g.courseid = ?))',
                             array($USER->id, $this->courseid));
                     if ($usersinmygroups) {
-                        foreach($usersinmygroups as $myuser) {
+                        foreach ($usersinmygroups as $myuser) {
                             $myusers[] = $myuser->userid;
                         }
                     }
@@ -652,11 +498,10 @@ class block_homework_set_page extends e\block_homework_form_page_base {
             'type' => 'select', 'prompt' => $this->get_str('duration'), 'options' => $durationoptions, 'value' => $assduration);
 
         $form[$basicstab]['available'] = array('type' => 'date', 'prompt' => $this->get_str('availablefrom'),
-            'value' => $assavaildate,
-            'required' => true, 'include_tomorrow_button' => true, 'include_next_week_button' => true);
+            'value' => $assavaildate, 'required' => true);
 
         $form[$basicstab]['due'] = array('type' => 'date', 'prompt' => $this->get_str('dueon'), 'value' => $assduedate,
-            'required' => true, 'include_tomorrow_button' => true, 'include_next_week_button' => true);
+            'required' => true);
 
         $assnotifylearners = true;
         $asslearnernotes = $this->get_str('notifylearnersmessage');

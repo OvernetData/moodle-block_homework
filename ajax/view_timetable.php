@@ -100,13 +100,22 @@ class ajaxgen_view_timetable extends ajaxgen_base {
             } else if ($maxdays > 366) {
                 $maxdays = 366;
             }
+            $coursecontext = context_course::instance($course->id);
+            $accessallgroups = $course->groupmode != 1 || has_capability('moodle/site:accessallgroups', $coursecontext);
+            $viewhiddenactivities = is_siteadmin() || has_capability('moodle/course:viewhiddenactivities', $coursecontext);
+
             $homeworkactivities = block_homework_utils::get_homework_for_course($course->id, $displayuserid, false, $maxdays);
             foreach ($homeworkactivities as $item) {
-                $context = context_module::instance($item->id);
                 // Skip this one if the user is not an activity creator (teacher) or participant in the specific
                 // assignment (student).
                 if (($usertype != "employee") &&
                     (!block_homework_moodle_utils::user_is_assignment_participant($displayuserid, $item->id))) {
+                    continue;
+                }
+
+                // Skip this one if the user is an activity creator (teacher) but view hidden activities is off and the user isn't
+                // the creator of this particular activity.
+                if (($usertype == "employee") && (!$accessallgroups) && (!$viewhiddenactivities) && ($item->userid != $USER->id)) {
                     continue;
                 }
                 $table->add_row();

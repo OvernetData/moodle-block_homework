@@ -17,7 +17,7 @@
 /**
  * Settings for the Homework block
  *
- * @copyright 2016 Overnet Data Ltd
+ * @copyright 2017 Overnet Data Ltd
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package   block_homework
  */
@@ -50,6 +50,10 @@ if ($ADMIN->fulltree) {
                        get_string('maxageemployee_help', 'block_homework'), 1, $days));
     $settings->add(new admin_setting_configselect('block_homework/max_age_other', get_string('maxageother', 'block_homework'),
                        get_string('maxageother_help', 'block_homework'), 8, $days));
+
+    $settings->add(new admin_setting_configselect('block_homework/allow_showdescription',
+                       get_string('allowshowdescription', 'block_homework'),
+                       get_string('allowshowdescription_help', 'block_homework'), 1, $yesno));
 
     $settings->add(new admin_setting_configselect('block_homework/default_showdescription',
                        get_string('defaultshowdescription', 'block_homework'),

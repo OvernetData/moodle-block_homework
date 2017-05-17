@@ -6,14 +6,15 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 /* jshint -W031, eqeqeq: false */
-/* globals M, define, ondEduLinkActivities, ondEduLinkDefaultGroup */
+/* globals M, define */
 define(['jquery',
     'theme_bootstrapbase/bootstrap',
     'block_homework/jquery.sumoselect',
     'block_homework/bootstrap-switch',
     'block_homework/zebra_tooltips',
     'block_homework/select2',
-    'block_homework/form_validate'], function ($,$bootstrapjs,$sumoselectjs,$bootstrapswitchjs,$zebrajs,$select2js,$validatorjs) {
+    'block_homework/datepicker',
+    'block_homework/form_validate'], function ($,$bootstrapjs,$sumoselectjs,$bootstrapswitchjs,$zebrajs,$select2js,$dpjs,$validatorjs) {
 
     "use strict";
 
@@ -38,8 +39,6 @@ define(['jquery',
                 return;
             }
             
-            $('#activity').on('change',activityChanged);
-
             // Initialise subgroups controlled by switches.
             $('.ond_subgroupcontroller').change(function() {
                 var controller = $(this);
@@ -80,13 +79,25 @@ define(['jquery',
                 });
             }
 
+            if ($.fn.datepicker) {
+                var dateoptions = {
+                    autoHide: true,
+                    autoPick: true,
+                    format: $('#dateformat').val(),
+                    date: new Date(Date.parse($('#due').val())),    // new Date(val) behaves oddly, new Date(Date.parse(val)) works!
+                    weekStart: 1
+
+                };
+                $('#due').datepicker(dateoptions);
+                dateoptions.date = new Date(Date.parse($('#available').val()));
+                $('#available').datepicker(dateoptions);
+            }
+            
             new $.Zebra_Tooltips($('.tooltips'), {
                 'background_color': 'oldlace',
                 'color': 'black',
                 'opacity': '1'
             });
-
-            activityChanged();
         };
 
         var cancelScreen = function() {
@@ -98,60 +109,11 @@ define(['jquery',
             window.location = url;
         };
         
-        var activityChanged = function () {
-            var activity_id = $('#activity').val();
-            var name = "";
-            var description = "";
-            var gradingscaleid = 0;
-            if (activity_id !== "0") {
-                // Use or clone existing activity (use.xx or clone.xx).
-                var clone = activity_id.slice(1) == 'c';
-                activity_id = activity_id.slice(activity_id.indexOf('.')+1);
-                console.log(activity_id);
-                name = ondEduLinkActivities[activity_id].name;
-                if (clone) {
-                    name = strs.copyof_ + name;
-                }
-                var avail = ondEduLinkActivities[activity_id].availability;
-                var allconditionsaregroups = true;
-                var groups = [];
-                if (avail != null) {
-                    for (var i = 0; i < avail.c.length; i++) {
-                        if (avail.c[i].type != "group") {
-                            allconditionsaregroups = false;
-                            break;
-                        } else {
-                            groups.push(avail.c[i].id);
-                        }
-                    }
-                }
-                if (allconditionsaregroups) {
-                    if ($('#groups').attr("type") != "hidden") {
-                        $('#groups').val(groups);
-                        $('#groups')[0].sumo.reload();
-                    }
-                }
-                description = ondEduLinkActivities[activity_id].description;
-                gradingscaleid = ondEduLinkActivities[activity_id].grade;
-            } else {
-                if (typeof(ondEduLinkDefaultGroup) != 'undefined') {
-                    if ($('#groups').attr("type") != "hidden") {
-                        var groups = [ondEduLinkDefaultGroup];
-                        $('#groups').val(groups);
-                        $('#groups')[0].sumo.reload();
-                    }
-                }
-            }
-            $('#name').val(name);
-            $('#description').val(description);
-            $('#gradingscale').val(gradingscaleid);
-        };
-
         var customValidate = function(control){
             var strs = M.str.block_homework;
             var error = '';
             if (control.attr("id") == "due") {
-                if (control.val() <= $('#available').val()) {
+                if ($('#due').datepicker('getDate') <= $('#available').datepicker('getDate')) {
                     error = strs.duedateinvalid;
                 }
             }

@@ -17,7 +17,7 @@
 /**
  * Various utility functions
  * @package    block_homework
- * @copyright  2016 Overnet Data Ltd. (@link http://www.overnetdata.com)
+ * @copyright  2017 Overnet Data Ltd. (@link http://www.overnetdata.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once("moodle.php");
@@ -26,6 +26,11 @@ require_once("controls.php");
 use block_homework\local\edulink as e;
 
 defined('MOODLE_INTERNAL') || die();
+
+$extended = $CFG->dirroot . "/availability/condition/user/homework/utils.php";
+if (file_exists($extended)) {
+    require_once($extended);
+}
 
 class block_homework_utils {
 
@@ -350,5 +355,209 @@ class block_homework_utils {
         }
         $rgb = explode(',', $value);
         return '#' . self::int_to_hex($rgb[0]) . self::int_to_hex($rgb[1]) . self::int_to_hex($rgb[2]);
+    }
+
+    public static function send_new_assignment_notifications() {
+        global $DB;
+        // Get list of homework assignments where notifications haven't been sent and allowsubmissionsfromdate is past.
+        $sql = 'SELECT bha.*, cm.course, a.name, a.duedate FROM {block_homework_assignment} bha ' .
+                'JOIN {course_modules} cm ON (cm.id = bha.coursemoduleid) ' .
+                'JOIN {assign} a ON (a.id = cm.instance) ' .
+                'WHERE bha.notificationssent = 0 AND a.allowsubmissionsfromdate < ? AND a.duedate > ?';
+        $now = time();
+        $params = array($now, $now);
+        $rows = $DB->get_records_sql($sql, $params);
+        foreach ($rows as $row) {
+            $assignmentduedate = self::format_date($row->duedate);
+            if (empty($row->duration)) {
+                $assignmentduration = get_string('durationnotspecified', 'block_homework');
+            } else {
+                $assignmentduration = self::get_duration_description($row->duration);
+            }
+
+            if (($row->notifyparents == 1) && ($row->notesforparents != '')) {
+                self::notify_parents($row->course, $row->coursemoduleid, $row->subject, $row->name,
+                    $assignmentduedate, $assignmentduration, $row->notesforparentssubject, $row->notesforparents);
+            }
+            if (($row->notifylearners == 1) && ($row->notesforlearners != '')) {
+                self::notify_learners($row->course, $row->coursemoduleid, $row->subject, $row->name,
+                    $assignmentduedate, $assignmentduration, $row->notesforlearnerssubject, $row->notesforlearners);
+            }
+            self::notify_admin($row->course, $row->coursemoduleid, $row->subject, $row->name,
+                $row->userid, ($row->notifyother == 1 ? $row->notifyotheremail : ''));
+
+            $DB->update_record('block_homework_assignment', (object) array('id' => $row->id, 'notificationssent' => 1));
+        }
+    }
+
+    public static function notify_parents($courseid, $coursemoduleid, $assignmentsubject, $assignmentname, $assignmentduedate,
+                                          $assignmentduration, $messagesubject, $messagebody) {
+        global $CFG;
+
+        $edulink = \block_homework_moodle_utils::is_edulink_present();
+        if (!$edulink) {
+            return false;
+        }
+        require_once($edulink);
+
+        $errors = array();
+        $variables = array(
+            'assignment_subject' => $assignmentsubject,
+            'subject' => $assignmentsubject,
+            'assignment_name' => $assignmentname,
+            'assignment_due_date' => $assignmentduedate,
+            'assignment_duration' => $assignmentduration,
+            'assignment_link' => $CFG->wwwroot . '/blocks/homework/assignment.php?course=' . $courseid . '&id=' .
+            $coursemoduleid,
+            'child_name ' => '',
+            'child_lastname' => '',
+            'child_firstname' => '',
+            'parent_title' => '',
+            'parent_name' => '',
+            'parent_lastname' => '',
+            'parent_firstname' => '');
+        $learners = block_homework_moodle_utils::get_assignment_participants($coursemoduleid);
+        $learnerids = array();
+        foreach ($learners as $id => $learner) {
+            $learnerids[] = $id;
+        }
+        $learnerswithparents = HomeworkAccess::get_parents($learnerids);
+        if (!is_array($learnerswithparents)) {
+            return $learnerswithparents;
+        }
+
+        foreach ($learnerswithparents as $learner) {
+            $variables["child_name"] = $learner["firstname"] . " " . $learner["lastname"];
+            $variables["child_lastname"] = $learner["lastname"];
+            $variables["child_firstname"] = $learner["firstname"];
+            foreach ($learner["parents"] as $parent) {
+                $variables["parent_title"] = $parent["title"];
+                $variables["parent_name"] = $parent["firstname"] . " " . $parent["lastname"];
+                $variables["parent_lastname"] = $parent["lastname"];
+                $variables["parent_firstname"] = $parent["firstname"];
+                $notificationbody = $messagebody;
+                $notificationsubject = $messagesubject;
+                foreach ($variables as $name => $value) {
+                    $notificationbody = str_ireplace('[' . $name . ']', $value, $notificationbody);
+                    $notificationsubject = str_ireplace('[' . $name . ']', $value, $notificationsubject);
+                }
+                // Moodle editor helpfully inserts full site URL into any link it thinks needs it so this gets rid of any resulting
+                // duplicates if you use a link that is a template e.g. <a href="[assignment_link]">blah</a>.
+                $notificationbody = str_replace($CFG->wwwroot . '/' . $CFG->wwwroot, $CFG->wwwroot, $notificationbody);
+                $error = self::email_parent($parent["id"], $notificationsubject, $notificationbody, $parent["email"],
+                        $learner["localid"]);
+                if ($error != '') {
+                    $errors[] = $parent["firstname"] . " " . $parent["lastname"] . ": " . $error;
+                }
+            }
+        }
+        if (count($errors) > 0) {
+            return get_string('emailerrors', 'block_homework', array('count' => count($errors), 'example' => $errors[0]));
+        }
+        return '';
+    }
+
+    public static function notify_learners($courseid, $coursemoduleid, $assignmentsubject, $assignmentname,
+            $assignmentduedate, $assignmentduration, $messagesubject, $messagebody) {
+        global $CFG, $DB;
+
+        $errors = array();
+        $variables = array(
+            'assignment_subject' => $assignmentsubject,
+            'subject' => $assignmentsubject,
+            'assignment_name' => $assignmentname,
+            'assignment_due_date' => $assignmentduedate,
+            'assignment_duration' => $assignmentduration,
+            'assignment_link' => $CFG->wwwroot . '/blocks/homework/assignment.php?course=' . $courseid . '&id=' .
+            $coursemoduleid,
+            'learner_name ' => '',
+            'learner_lastname' => '',
+            'learner_firstname' => '');
+        $learners = block_homework_moodle_utils::get_assignment_participants($coursemoduleid);
+        $lognotifications = get_config('block_homework', 'log_notifications');
+        foreach ($learners as $learnerentry) {
+            $learner = $DB->get_record('user', array('id' => $learnerentry->id), 'id,firstname,lastname,email');
+            $variables["learner_name"] = $learner->firstname . " " . $learner->lastname;
+            $variables["learner_lastname"] = $learner->lastname;
+            $variables["learner_firstname"] = $learner->firstname;
+            $notificationbody = $messagebody;
+            $notificationsubject = $messagesubject;
+            foreach ($variables as $name => $value) {
+                $notificationbody = str_ireplace('[' . $name . ']', $value, $notificationbody);
+                $notificationsubject = str_ireplace('[' . $name . ']', $value, $notificationsubject);
+            }
+            // Moodle editor helpfully inserts full site URL into any link it thinks needs it so this gets rid of any resulting
+            // duplicates if you use a link that is a template e.g. <a href="[assignment_link]">blah</a>.
+            $notificationbody = str_replace($CFG->wwwroot . '/' . $CFG->wwwroot, $CFG->wwwroot, $notificationbody);
+            $messageid = block_homework_moodle_utils::send_message($learner->id, $notificationsubject, $notificationbody,
+                    $variables["assignment_link"], $variables["assignment_name"], $courseid);
+            if (!$messageid) {
+                $errors[] = $variables["learner_name"] . ": " . get_string('messagesendfailed', 'block_homework');
+            } else {
+                if (($lognotifications) && (class_exists('block_homework_utils_extended'))) {
+                    block_homework_utils_extended::log_notification($coursemoduleid, $learner->id, $learner->email, $messageid);
+                }
+            }
+        }
+        if (count($errors) > 0) {
+            return get_string('emailerrors', 'block_homework', array('count' => count($errors), 'example' => $errors[0]));
+        }
+        return '';
+    }
+
+    public static function notify_admin($courseid, $coursemoduleid, $assignmentsubject, $assignmentname, $userid,
+            $notifyotheremail) {
+        global $CFG, $DB;
+        $user = $DB->get_record('user', array('id' => $userid));
+        $notifycreator = get_config('block_homework', 'notify_creator');
+        $lognotifications = get_config('block_homework', 'log_notifications');
+        $course = get_course($courseid);
+        $variables = array(
+            'assignment_subject' => $assignmentsubject,
+            'subject' => $assignmentsubject,
+            'assignment_name' => $assignmentname,
+            'assignment_link' => $CFG->wwwroot . '/blocks/homework/assignment.php?course=' . $courseid . '&id=' .
+            $coursemoduleid,
+            'course_name' => $course->fullname);
+        $notificationbody = get_config('block_homework', 'new_assign_notification_message');
+        $notificationsubject = get_config('block_homework', 'new_assign_notification_subject');
+        foreach ($variables as $name => $value) {
+            $notificationbody = str_ireplace('[' . $name . ']', $value, $notificationbody);
+            $notificationsubject = str_ireplace('[' . $name . ']', $value, $notificationsubject);
+        }
+        // Moodle editor helpfully inserts full site URL into any link it thinks needs it so this gets rid of any resulting
+        // duplicates if you use a link that is a template e.g. <a href="[assignment_link]">blah</a>.
+        $notificationbody = str_replace($CFG->wwwroot . '/' . $CFG->wwwroot, $CFG->wwwroot, $notificationbody);
+        $errors = array();
+        if ($notifycreator) {
+            $messageid = block_homework_moodle_utils::send_message($userid, $notificationsubject, $notificationbody,
+                    $variables["assignment_link"], $variables["assignment_name"], $courseid);
+            if (!$messageid) {
+                $errors[] = fullname($user) . ": " . get_string('messagesendfailed', 'block_homework');
+            } else {
+                if (($lognotifications) && (class_exists('block_homework_utils_extended'))) {
+                    block_homework_utils_extended::log_notification($coursemoduleid, $userid, $user->email, $messageid);
+                }
+            }
+        }
+        if ($notifyotheremail != '') {
+            if (class_exists('block_homework_utils_extended')) {
+                $error = block_homework_utils_extended::send_email($user, $notifyotheremail, '', $notificationsubject,
+                    $notificationbody);
+            } else {
+                $error = 'Incomplete installation';
+            }
+            if ($error != '') {
+                $errors[] = $error;
+            } else {
+                if (($lognotifications) && (class_exists('block_homework_utils_extended'))) {
+                    block_homework_utils_extended::log_notification($coursemoduleid, null, $notifyotheremail, null);
+                }
+            }
+        }
+        if (count($errors) > 0) {
+            return get_string('emailerrors', 'block_homework', array('count' => count($errors), 'example' => $errors[0]));
+        }
+        return '';
     }
 }
