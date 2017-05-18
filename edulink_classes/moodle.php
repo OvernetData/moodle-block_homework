@@ -486,6 +486,7 @@ class block_homework_moodle_utils {
                     'sendlatenotifications' => get_config('assign', 'sendlatenotifications'),
                     'sendstudentnotifications' => get_config('assign', 'sendstudentnotifications'),
                     'duedate' => $duedate,
+                    'gradingduedate' => 0,
                     'cutoffdate' => 0,
                     'allowsubmissionsfromdate' => $availabledate,
                     'grade' => $grade,
@@ -1104,7 +1105,9 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         $message->replyto = $USER->email;
         $message->contexturl = $contexturl;
         $message->contexturlname = $contexturlname;
-        $message->courseid = $courseid;
+        if (property_exists($message,'courseid')) {
+            $message->courseid = $courseid;
+        }
         return message_send($message);
     }
 }
