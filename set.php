@@ -600,21 +600,16 @@ class block_homework_set_page extends e\block_homework_form_page_base {
                     'note_to_parents' => array('type' => 'label-warning', 'value' => $this->get_str('edulinkfeatureonly'))
                 ));
         }
-        if ($extrafunc) {
-            $notetolearnerscontrol = $this->get_text_editor($asscontext, 0, 'note_to_learners', $asslearnernotes);
-            $form[$basicstab]['notifylearners'] = array('type' => 'switch', 'prompt' => $this->get_str('notifylearners'),
-                'default' => true, 'value' => $assnotifylearners,
-                'subgroup_if_on' => array(
-                    'note_to_learners_subject' => array('prompt' => $this->get_str('notesforlearnerssubject'), 'type' => 'text',
-                        'size' => 80, 'required' => true, 'value' => $asslearnernotessubject),
-                    'note_to_learners_body' => array('prompt' => $this->get_str('notesforlearners'), 'type' => 'static',
-                        'value' => $notetolearnerscontrol)
-                ));
-        } else {
-            $form[$basicstab]['notifylearners'] = array('type' => 'hidden', 'value' => 0);
-            $form[$basicstab]['note_to_learners_subject'] = array('type' => 'hidden', 'value' => '');
-            $form[$basicstab]['note_to_learners_body'] = array('type' => 'hidden', 'value' => '');
-        }
+
+        $notetolearnerscontrol = $this->get_text_editor($asscontext, 0, 'note_to_learners', $asslearnernotes);
+        $form[$basicstab]['notifylearners'] = array('type' => 'switch', 'prompt' => $this->get_str('notifylearners'),
+            'default' => true, 'value' => $assnotifylearners,
+            'subgroup_if_on' => array(
+                'note_to_learners_subject' => array('prompt' => $this->get_str('notesforlearnerssubject'), 'type' => 'text',
+                    'size' => 80, 'required' => true, 'value' => $asslearnernotessubject),
+                'note_to_learners_body' => array('prompt' => $this->get_str('notesforlearners'), 'type' => 'static',
+                    'value' => $notetolearnerscontrol)
+            ));
 
         return $form;
     }
