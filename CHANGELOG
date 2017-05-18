@@ -1,4 +1,4 @@
-1.1.16
+1.1.17
     * Notifications of new assignments now sent by scheduled task when
       assignment goes live, not on creation
     * View all / Mark screens now filter out hidden assignments if hidden 
