@@ -444,7 +444,7 @@ class block_homework_utils {
                 // Moodle editor helpfully inserts full site URL into any link it thinks needs it so this gets rid of any resulting
                 // duplicates if you use a link that is a template e.g. <a href="[assignment_link]">blah</a>.
                 $notificationbody = str_replace($CFG->wwwroot . '/' . $CFG->wwwroot, $CFG->wwwroot, $notificationbody);
-                $error = self::email_parent($parent["id"], $notificationsubject, $notificationbody, $parent["email"],
+                $error = HomeworkAccess::email_parent($parent["id"], $notificationsubject, $notificationbody, $parent["email"],
                         $learner["localid"]);
                 if ($error != '') {
                     $errors[] = $parent["firstname"] . " " . $parent["lastname"] . ": " . $error;
