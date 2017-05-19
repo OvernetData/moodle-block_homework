@@ -1105,7 +1105,7 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         $message->replyto = $USER->email;
         $message->contexturl = $contexturl;
         $message->contexturlname = $contexturlname;
-        if (property_exists($message,'courseid')) {
+        if (property_exists($message, 'courseid')) {
             $message->courseid = $courseid;
         }
         return message_send($message);
