@@ -122,6 +122,24 @@ class block_homework_set_page extends e\block_homework_form_page_base {
             $html .= $label->get_html() . '<br>';
         } else {
             $values = $this->get_submitted_values($form);
+            $requirerestriction = get_config('block_homework', 'require_restriction') == 1;
+            $restrictedcount = 0;
+            if (isset($values["groups"])) {
+                $restrictedcount += count($values["groups"]);
+            }
+            if (isset($values["users"])) {
+                $restrictedcount += count($values["users"]);
+            }
+            if ($requirerestriction && ($restrictedcount == 0)) {
+                $label = new e\htmlLabel('label-warning', $this->get_str('mustrestrict'));
+                $html .= $label->get_html() . '<br>';
+                $linkset = new e\htmlHyperlink('', $this->get_str('setanotherassignment'), $CFG->wwwroot .
+                        '/blocks/homework/set.php?course=' . $this->courseid, $this->get_str('setanotherassignment_title'));
+                $linkset->set_class('ond_material_button_raised');
+                $html .= $linkset->get_html();
+                return $html . '</div>';
+            }
+
             $act = null;
             $activity = $values["activity"];
             if ($activity == "0") {
