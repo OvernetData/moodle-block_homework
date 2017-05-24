@@ -124,20 +124,28 @@ class block_homework_set_page extends e\block_homework_form_page_base {
             $values = $this->get_submitted_values($form);
             $requirerestriction = get_config('block_homework', 'require_restriction') == 1;
             $restrictedcount = 0;
-            if (isset($values["groups"])) {
-                $restrictedcount += count($values["groups"]);
-            }
-            if (isset($values["users"])) {
-                $restrictedcount += count($values["users"]);
-            }
-            if ($requirerestriction && ($restrictedcount == 0)) {
-                $label = new e\htmlLabel('label-warning', $this->get_str('mustrestrict'));
-                $html .= $label->get_html() . '<br>';
-                $linkset = new e\htmlHyperlink('', $this->get_str('setanotherassignment'), $CFG->wwwroot .
-                        '/blocks/homework/set.php?course=' . $this->courseid, $this->get_str('setanotherassignment_title'));
-                $linkset->set_class('ond_material_button_raised');
-                $html .= $linkset->get_html();
-                return $html . '</div>';
+            if ($requirerestriction) {
+                if (isset($values["groups"])) {
+                    $restrictedcount += count($values["groups"]);
+                }
+                if (isset($values["users"])) {
+                    $restrictedcount += count($values["users"]);
+                    if (block_homework_moodle_utils::is_availability_condition_user_present() &&
+                        get_config('block_homework', 'creator_is_participant') == 1) {
+                        if (!in_array($USER->id, $values["users"])) {
+                            $values["users"][] = $USER->id;
+                        }
+                    }
+                }
+                if ($restrictedcount == 0) {
+                    $label = new e\htmlLabel('label-warning', $this->get_str('mustrestrict'));
+                    $html .= $label->get_html() . '<br>';
+                    $linkset = new e\htmlHyperlink('', $this->get_str('setanotherassignment'), $CFG->wwwroot .
+                            '/blocks/homework/set.php?course=' . $this->courseid, $this->get_str('setanotherassignment_title'));
+                    $linkset->set_class('ond_material_button_raised');
+                    $html .= $linkset->get_html();
+                    return $html . '</div>';
+                }
             }
 
             $act = null;
@@ -421,9 +429,10 @@ class block_homework_set_page extends e\block_homework_form_page_base {
                 $context = \context_course::instance($this->courseid);
                 $seeallusers = $this->course->groupmode != 1 ||
                                 has_capability('moodle/site:accessallgroups', $context);
-                $courseuserobjects = get_role_users(5, $context);
+                $courseuserobjects = get_role_users(3, $context);
+                $courseuserobjects += get_role_users(5, $context);
                 $courseusers = array();
-                $myusers = array();
+                $myusers = array($USER->id);
                 if (!$seeallusers) {
                     $usersinmygroups = $DB->get_records_sql('SELECT DISTINCT userid FROM {groups_members} gm2 ' .
                             'WHERE groupid IN (SELECT DISTINCT gm.groupid FROM {groups_members} gm WHERE gm.userid = ? ' .

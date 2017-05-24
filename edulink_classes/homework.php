@@ -374,24 +374,25 @@ class block_homework_utils {
             } else {
                 $assignmentduration = self::get_duration_description($row->duration);
             }
+            $assignmentowner = $DB->get_record('user', array('id' => $row->userid));
 
             if (($row->notifyparents == 1) && ($row->notesforparents != '')) {
-                self::notify_parents($row->course, $row->coursemoduleid, $row->subject, $row->name,
+                self::notify_parents($row->course, $row->coursemoduleid, $row->subject, $row->name, $assignmentowner,
                     $assignmentduedate, $assignmentduration, $row->notesforparentssubject, $row->notesforparents);
             }
             if (($row->notifylearners == 1) && ($row->notesforlearners != '')) {
-                self::notify_learners($row->course, $row->coursemoduleid, $row->subject, $row->name,
+                self::notify_learners($row->course, $row->coursemoduleid, $row->subject, $row->name, $assignmentowner,
                     $assignmentduedate, $assignmentduration, $row->notesforlearnerssubject, $row->notesforlearners);
             }
-            self::notify_admin($row->course, $row->coursemoduleid, $row->subject, $row->name,
-                $row->userid, ($row->notifyother == 1 ? $row->notifyotheremail : ''));
+            self::notify_admin($row->course, $row->coursemoduleid, $row->subject, $row->name, $assignmentowner,
+                ($row->notifyother == 1 ? $row->notifyotheremail : ''));
 
             $DB->update_record('block_homework_assignment', (object) array('id' => $row->id, 'notificationssent' => 1));
         }
     }
 
-    public static function notify_parents($courseid, $coursemoduleid, $assignmentsubject, $assignmentname, $assignmentduedate,
-                                          $assignmentduration, $messagesubject, $messagebody) {
+    public static function notify_parents($courseid, $coursemoduleid, $assignmentsubject, $assignmentname, $assignmentowner,
+                                          $assignmentduedate, $assignmentduration, $messagesubject, $messagebody) {
         global $CFG;
 
         $edulink = \block_homework_moodle_utils::is_edulink_present();
@@ -445,7 +446,7 @@ class block_homework_utils {
                 // duplicates if you use a link that is a template e.g. <a href="[assignment_link]">blah</a>.
                 $notificationbody = str_replace($CFG->wwwroot . '/' . $CFG->wwwroot, $CFG->wwwroot, $notificationbody);
                 $error = HomeworkAccess::email_parent($parent["id"], $notificationsubject, $notificationbody, $parent["email"],
-                        $learner["localid"]);
+                        $learner["localid"], $assignmentowner);
                 if ($error != '') {
                     $errors[] = $parent["firstname"] . " " . $parent["lastname"] . ": " . $error;
                 }
@@ -457,8 +458,8 @@ class block_homework_utils {
         return '';
     }
 
-    public static function notify_learners($courseid, $coursemoduleid, $assignmentsubject, $assignmentname,
-            $assignmentduedate, $assignmentduration, $messagesubject, $messagebody) {
+    public static function notify_learners($courseid, $coursemoduleid, $assignmentsubject, $assignmentname, $assignmentowner,
+                                           $assignmentduedate, $assignmentduration, $messagesubject, $messagebody) {
         global $CFG, $DB;
 
         $errors = array();
@@ -489,8 +490,8 @@ class block_homework_utils {
             // Moodle editor helpfully inserts full site URL into any link it thinks needs it so this gets rid of any resulting
             // duplicates if you use a link that is a template e.g. <a href="[assignment_link]">blah</a>.
             $notificationbody = str_replace($CFG->wwwroot . '/' . $CFG->wwwroot, $CFG->wwwroot, $notificationbody);
-            $messageid = block_homework_moodle_utils::send_message($learner->id, $notificationsubject, $notificationbody,
-                    $variables["assignment_link"], $variables["assignment_name"], $courseid);
+            $messageid = block_homework_moodle_utils::send_message($assignmentowner, $learner->id, $notificationsubject,
+                    $notificationbody, $variables["assignment_link"], $variables["assignment_name"], $courseid);
             if (!$messageid) {
                 $errors[] = $variables["learner_name"] . ": " . get_string('messagesendfailed', 'block_homework');
             } else {
@@ -505,10 +506,10 @@ class block_homework_utils {
         return '';
     }
 
-    public static function notify_admin($courseid, $coursemoduleid, $assignmentsubject, $assignmentname, $userid,
+    public static function notify_admin($courseid, $coursemoduleid, $assignmentsubject, $assignmentname, $assignmentowner,
             $notifyotheremail) {
-        global $CFG, $DB;
-        $user = $DB->get_record('user', array('id' => $userid));
+        global $CFG;
+
         $notifycreator = get_config('block_homework', 'notify_creator');
         $lognotifications = get_config('block_homework', 'log_notifications');
         $course = get_course($courseid);
@@ -530,19 +531,20 @@ class block_homework_utils {
         $notificationbody = str_replace($CFG->wwwroot . '/' . $CFG->wwwroot, $CFG->wwwroot, $notificationbody);
         $errors = array();
         if ($notifycreator) {
-            $messageid = block_homework_moodle_utils::send_message($userid, $notificationsubject, $notificationbody,
-                    $variables["assignment_link"], $variables["assignment_name"], $courseid);
+            $messageid = block_homework_moodle_utils::send_message($assignmentowner, $assignmentowner, $notificationsubject,
+                    $notificationbody, $variables["assignment_link"], $variables["assignment_name"], $courseid);
             if (!$messageid) {
-                $errors[] = fullname($user) . ": " . get_string('messagesendfailed', 'block_homework');
+                $errors[] = fullname($assignmentowner) . ": " . get_string('messagesendfailed', 'block_homework');
             } else {
                 if (($lognotifications) && (class_exists('block_homework_utils_extended'))) {
-                    block_homework_utils_extended::log_notification($coursemoduleid, $userid, $user->email, $messageid);
+                    block_homework_utils_extended::log_notification($coursemoduleid, $assignmentowner->id, $assignmentowner->email,
+                        $messageid);
                 }
             }
         }
         if ($notifyotheremail != '') {
             if (class_exists('block_homework_utils_extended')) {
-                $error = block_homework_utils_extended::send_email($user, $notifyotheremail, '', $notificationsubject,
+                $error = block_homework_utils_extended::send_email($assignmentowner, $notifyotheremail, '', $notificationsubject,
                     $notificationbody);
             } else {
                 $error = 'Incomplete installation';

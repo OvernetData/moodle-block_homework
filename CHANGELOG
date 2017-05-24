@@ -1,3 +1,6 @@
+1.1.18
+    * Notifications now come from assignment creator not admin user
+
 1.1.17
     * Notifications of new assignments now sent by scheduled task when
       assignment goes live, not on creation

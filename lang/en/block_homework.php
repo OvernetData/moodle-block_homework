@@ -348,6 +348,8 @@ $string['save'] = 'Save';
 $string['failedtofetchdata'] = 'Failed to fetch data';
 
 // Settings.
+$string['creatorisparticipant'] = 'Ensure assignment creator is assignment participant';
+$string['creatorisparticipant_help'] = 'Always add the assignment creator to the list of individual user participants';
 $string['notifycreator'] = 'Notify assignment creator of new assignments';
 $string['notifycreator_help'] = 'Send a Moodle message to the assignment creator whenever they create a new assignment';
 $string['notifyother'] = 'Notify third party';

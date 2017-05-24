@@ -1090,19 +1090,18 @@ WHERE u.id IN ({$useridlist}) ORDER BY u.lastname, u.firstname";
         return $usertype;
     }
 
-    public static function send_message($touser, $subject, $body, $contexturl, $contexturlname, $courseid) {
-        global $USER;
+    public static function send_message($fromuser, $touser, $subject, $body, $contexturl, $contexturlname, $courseid) {
         $message = new \core\message\message();
         $message->component = 'block_homework';
         $message->name = 'new_assignment';
-        $message->userfrom = $USER;
+        $message->userfrom = $fromuser;
         $message->userto = $touser;
         $message->subject = $subject;
         $message->fullmessage = strip_tags($body);
         $message->fullmessageformat = FORMAT_MARKDOWN;
         $message->fullmessagehtml = $body;
         $message->notification = '1';
-        $message->replyto = $USER->email;
+        $message->replyto = $fromuser->email;
         $message->contexturl = $contexturl;
         $message->contexturlname = $contexturlname;
         if (property_exists($message, 'courseid')) {
